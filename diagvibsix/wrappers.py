@@ -46,6 +46,8 @@ class TorchDatasetWrapper(TorchDataset):
 
     Args:
         dataset_spec_path (Str): Path to the dataset specification yaml file.
+        mnist_preprocessed_path (Str): Path to the processed MNIST dataset. If there is no such dataset, you can generate it by 
+        calling process_mnist.get_processed_mnist(mnist_dir).
         cache (Optional[Bool], optional): True if the dataset is to be stored for further use or if it has already been generated and only has to
         be recovered. In the latter case, the path to the dataset must be specified in dataset_dir.
         dataset_dir (Optional[Str], optional): Path to the directory where the dataset is or will be stored if cache=True. It defaults to the
@@ -57,6 +59,7 @@ class TorchDatasetWrapper(TorchDataset):
     """
     def __init__(self, 
                  dataset_spec_path: Str, 
+                 mnist_preprocessed_path: Str,
                  cache: Optional[Bool] = False,
                  dataset_dir: Optional[Str] = None, 
                  seed: Optional[Int] = 123, 
@@ -71,7 +74,7 @@ class TorchDatasetWrapper(TorchDataset):
              self.dataset_dir = dataset_dir
 
         cache_filepath = os.path.join(self.dataset_dir, os.path.splitext(os.path.basename(dataset_spec_path))[0] + ".pkl") if cache else None
-        self.dataset = Dataset(self.dataset_spec, cache_filepath, self.dataset_dir, seed)
+        self.dataset = Dataset(self.dataset_spec, mnist_preprocessed_path, cache_filepath, self.dataset_dir, seed)
         self.normalization = normalization
 
         # Get tags, task and shape.

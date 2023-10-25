@@ -66,7 +66,7 @@ def pos_to_abs(rel_pos, img_shape, obj_size):
     return abs_pos
 
 
-def load_dataset(dataset):
+def load_dataset(dataset, mnist_preprocessed_path):
     """For a given dataset dict load the mnist data.
 
     Parameters
@@ -81,8 +81,8 @@ def load_dataset(dataset):
     """
 
     for d_name, d in dataset.items():
-        x = np.load(d['savepath'])['x_' + d_name]
-        y = np.load(d['savepath'])['y_' + d_name]
+        x = np.load(mnist_preprocessed_path)['x_' + d_name]
+        y = np.load(mnist_preprocessed_path)['y_' + d_name]
         sorted_idxs = y.argsort()
         x = x[sorted_idxs]
         d['X'] = x
@@ -94,10 +94,10 @@ class Painter(object):
 
     Note: This avoids the loading of textures for every image that is painted.
     """
-    def __init__(self):
+    def __init__(self, mnist_preprocessed_path):
         self.textures = {texture: imread(path) for texture, path in TEXTURES.items()}
 
-        self.data_loaded = load_dataset(DATASETS)
+        self.data_loaded = load_dataset(DATASETS, mnist_preprocessed_path)
 
     def create_canvas(self, shape):
         """Create and return an empty gray image of the given shape.

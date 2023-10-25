@@ -23,9 +23,6 @@ import os
 
 # Definition of shared paths.
 # =============================================================================
-# MNIST save / load file names for pre-processing.
-SHARED_LOADPATH_MNIST = './diagvibsix/dataset/mnist.npz'
-SHARED_SAVEPATH_MNIST = './diagvibsix/dataset/mnist_processed.npz'
 # Path to the local textures in the repository.
 TEXTURE_PATH = './diagvibsix/dataset/textures/'
 # Path to the selected factor classes
@@ -111,19 +108,16 @@ DATASETS = {
     'train': {
         'classes': [str(i) for i in range(10)],
         'samples': [4738, 5393, 4766, 4904, 4673, 4336, 4734, 5012, 4680, 4759],
-        'savepath': SHARED_SAVEPATH_MNIST,
         'size': 40
     },
     'val': {
         'classes': [str(i) for i in range(10)],
         'samples': [1185, 1349, 1192, 1227, 1169, 1085, 1184, 1253, 1171, 1190],
-        'savepath': SHARED_SAVEPATH_MNIST,
         'size': 40
     },
     'test': {
         'classes': [str(i) for i in range(10)],
         'samples': [980, 1135, 1032, 1010, 982, 892, 958, 1028, 974, 1009],
-        'savepath': SHARED_SAVEPATH_MNIST,
         'size': 40
     },
 }

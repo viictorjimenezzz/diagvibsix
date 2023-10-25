@@ -22,13 +22,9 @@
 import numpy as np
 from skimage.transform import rescale
 from tqdm import trange
-
-from config import SHARED_LOADPATH_MNIST, SHARED_SAVEPATH_MNIST
-
-
-"""This script rescales MNIST digits to a 40x40 canvas.
-"""
-
+from typing import Str
+import os
+import requests
 
 def get_bbox(im, idx=255):
     """Returns bounding box.
@@ -40,71 +36,107 @@ def get_bbox(im, idx=255):
     return bbox
 
 
-IMG_SIZE = 40
-OBJ_SIZE = IMG_SIZE // np.sqrt(2)
-TRAIN_VAL_SPLIT = 0.8
-data = np.load(SHARED_LOADPATH_MNIST)
+def process_mnist(mnist_loadpath: Str, procmnist_savepath: Str):
+    """This function rescales MNIST digits to a 40x40 canvas.
+    """
+    IMG_SIZE = 40
+    OBJ_SIZE = IMG_SIZE // np.sqrt(2)
+    TRAIN_VAL_SPLIT = 0.8
+    data = np.load(mnist_loadpath)
 
-processed_data = {'x_train': [None] * 60000, 'x_test': [None] * 10000,
-                  'y_train': data['y_train'], 'y_test': data['y_test']}
+    processed_data = {'x_train': [None] * 60000, 'x_test': [None] * 10000,
+                    'y_train': data['y_train'], 'y_test': data['y_test']}
 
-for file in data.files:
-    if file.startswith('x'):
-        dataset = data[file]
-        print('Preprocess {} ...'.format(file))
-        for idx in trange(dataset.shape[0]):
-            im = dataset[idx]
-            mask = np.where(im > 100, 255, 0)
-            bbox = get_bbox(mask, idx=255)
-            im = im[bbox]
-            im_rescaled = rescale(im, np.min([OBJ_SIZE / im.shape[0], OBJ_SIZE / im.shape[1]]), anti_aliasing=True,
-                                   preserve_range=True, order=3).astype('uint8')
-            canvas = np.zeros((IMG_SIZE, IMG_SIZE), dtype='uint8')
-            x0 = int((IMG_SIZE - 1) / 2 - (im_rescaled.shape[1] - 1) / 2)
-            y0 = int((IMG_SIZE - 1) / 2 - (im_rescaled.shape[0] - 1) / 2)
-            pos = (slice(y0, y0 + im_rescaled.shape[0]), slice(x0, x0 + im_rescaled.shape[1]))
-            canvas[pos] = im_rescaled
-            processed_data[file][idx] = canvas
+    for file in data.files:
+        if file.startswith('x'):
+            dataset = data[file]
+            print('Preprocess {} ...'.format(file))
+            for idx in trange(dataset.shape[0]):
+                im = dataset[idx]
+                mask = np.where(im > 100, 255, 0)
+                bbox = get_bbox(mask, idx=255)
+                im = im[bbox]
+                im_rescaled = rescale(im, np.min([OBJ_SIZE / im.shape[0], OBJ_SIZE / im.shape[1]]), anti_aliasing=True,
+                                    preserve_range=True, order=3).astype('uint8')
+                canvas = np.zeros((IMG_SIZE, IMG_SIZE), dtype='uint8')
+                x0 = int((IMG_SIZE - 1) / 2 - (im_rescaled.shape[1] - 1) / 2)
+                y0 = int((IMG_SIZE - 1) / 2 - (im_rescaled.shape[0] - 1) / 2)
+                pos = (slice(y0, y0 + im_rescaled.shape[0]), slice(x0, x0 + im_rescaled.shape[1]))
+                canvas[pos] = im_rescaled
+                processed_data[file][idx] = canvas
 
-processed_data['x_train'] = np.array(processed_data['x_train'])
-processed_data['x_test'] = np.array(processed_data['x_test'])
+    processed_data['x_train'] = np.array(processed_data['x_train'])
+    processed_data['x_test'] = np.array(processed_data['x_test'])
 
 
-""" Split training data in 80% train and 20% validation """
-x_train = []
-x_val = []
-samples_train = []
-samples_val = []
+    """ Split training data in 80% train and 20% validation """
+    x_train = []
+    x_val = []
+    samples_train = []
+    samples_val = []
 
-sorted_train_idxs = processed_data['y_train'].argsort()
-x_train_sorted = processed_data['x_train'][sorted_train_idxs]
-y_train_sorted = processed_data['y_train'][sorted_train_idxs]
-train_samples = [np.sum(y_train_sorted == i) for i in range(10)]
+    sorted_train_idxs = processed_data['y_train'].argsort()
+    x_train_sorted = processed_data['x_train'][sorted_train_idxs]
+    y_train_sorted = processed_data['y_train'][sorted_train_idxs]
+    train_samples = [np.sum(y_train_sorted == i) for i in range(10)]
 
-sorted_test_idxs = processed_data['y_test'].argsort()
-x_test = processed_data['x_test'][sorted_test_idxs]
-y_test = processed_data['y_test'][sorted_test_idxs]
-test_samples = [np.sum(y_test == i) for i in range(10)]
+    sorted_test_idxs = processed_data['y_test'].argsort()
+    x_test = processed_data['x_test'][sorted_test_idxs]
+    y_test = processed_data['y_test'][sorted_test_idxs]
+    test_samples = [np.sum(y_test == i) for i in range(10)]
 
-for i in range(10):
-    begin_train = int(np.sum(train_samples[:i]))
-    split = int(train_samples[i] * TRAIN_VAL_SPLIT + np.sum(train_samples[:i]))
-    end_val = int(np.sum(train_samples[:i+1]))
+    for i in range(10):
+        begin_train = int(np.sum(train_samples[:i]))
+        split = int(train_samples[i] * TRAIN_VAL_SPLIT + np.sum(train_samples[:i]))
+        end_val = int(np.sum(train_samples[:i+1]))
 
-    x_train.append(x_train_sorted[slice(begin_train, split)])
-    x_val.append(x_train_sorted[slice(split, end_val)])
-    samples_train.append(x_train[i].shape[0])
-    samples_val.append(x_val[i].shape[0])
+        x_train.append(x_train_sorted[slice(begin_train, split)])
+        x_val.append(x_train_sorted[slice(split, end_val)])
+        samples_train.append(x_train[i].shape[0])
+        samples_val.append(x_val[i].shape[0])
 
-x_train = np.concatenate(x_train)
-x_val = np.concatenate(x_val)
-y_train = np.array([i for i in range(10) for j in range(samples_train[i])], dtype='uint8')
-y_val = np.array([i for i in range(10) for j in range(samples_val[i])], dtype='uint8')
+    x_train = np.concatenate(x_train)
+    x_val = np.concatenate(x_val)
+    y_train = np.array([i for i in range(10) for j in range(samples_train[i])], dtype='uint8')
+    y_val = np.array([i for i in range(10) for j in range(samples_val[i])], dtype='uint8')
 
-np.savez(SHARED_SAVEPATH_MNIST,
-         x_train=x_train,
-         x_val=x_val,
-         x_test=x_test,
-         y_train=y_train,
-         y_val=y_val,
-         y_test=y_test)
+    np.savez(procmnist_savepath,
+            x_train=x_train,
+            x_val=x_val,
+            x_test=x_test,
+            y_train=y_train,
+            y_val=y_val,
+            y_test=y_test)
+    return
+
+
+def get_processed_mnist(mnist_processed_dir: Str):
+    """Returns processed MNIST dataset.
+
+    Args:
+        mnist_processed_path (Str): Directory where to store the processed MNIST dataset.
+
+    Returns:
+        Str: Path to the processed MNIST dataset.
+    """
+
+    # Check whether mnist.npz exists:
+    mnist_loadpath = mnist_processed_dir + 'mnist.npz'
+    if not os.path.isfile(mnist_loadpath):
+        mnist_keras = "https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz"
+        response = requests.get(mnist_keras, stream=True)
+        response.raise_for_status()
+
+        with open(mnist_loadpath, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+
+    # Check whether preprocessed_mnist.npz exists:
+    procmnist_savepath = mnist_processed_dir + 'mnist_processed.npz'
+    if not os.path.isfile(procmnist_savepath):
+        process_mnist(mnist_loadpath, procmnist_savepath)
+
+    # Delete mnist.npz:
+    os.remove(mnist_loadpath)
+
+    return procmnist_savepath
