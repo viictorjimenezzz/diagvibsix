@@ -24,23 +24,14 @@ import itertools
 import copy
 import numpy as np
 import random
+from typing import List, Str, Int
 
 from diagvibsix.auxiliaries import save_experiment, load_yaml
 from diagvibsix.dataset.mode import Mode
-from diagvibsix.dataset.config import SHARED_STUDY_PATH, FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
+from diagvibsix.dataset.config import FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
 
-# Get factors and number of factors.
-F = len(FACTOR_CLASSES)
+__all__ = ['generate_ZSO_ZGO_FGO']
 
-# Define list of all studies.
-# Each study is defined by its two parameters: [correlated factors, predicted factors]
-# An optional third parameter in [0, 100] might be given to specify a correlation frequency. By default this is 100.
-# Study for the biased experiment.
-STUDIES = [[0, 1],          # ZSO
-           [2, 1, 80],      # FGO-80
-           [2, 1, 90],      # FGO-90
-           [2, 1, 95],      # FGO-95
-           [2, 1, 100]]     # ZGO
 """
     The general folder for a dataset specification is :
         SHARED_DATASET_PATH / study name / factor combination, corr weight / sample id / train,val,test.yml
@@ -61,6 +52,8 @@ STUDIES = [[0, 1],          # ZSO
 
 
 def generate_dataset(corr_comb, pred_comb, corr_weight, selected_classes, random_seed):
+    F = len(FACTOR_CLASSES)
+    
     # Fix random seed for re-producebility.
     np.random.seed(random_seed)
     random.seed(random_seed)
@@ -224,12 +217,27 @@ def generate_dataset(corr_comb, pred_comb, corr_weight, selected_classes, random
     return ds_spec
 
 
-def main():
+def generate_ZSO_ZGO_FGO(study_path: Str, studies: List[List[Int]]):
+    """Generates configuration files for the ZSO, ZGO and FGO studies.
+
+    Args:
+        study_path (str): Path where the configuration files should be stored.
+        studies (list): List of studies to be generated. Each study is defined by its two parameters: [correlated factors, predicted factors]
+        An optional third parameter in [0, 100] might be given to specify a correlation frequency. By default this is 100. 
+        
+        For example, for the biased experiment:
+        studies = [[0, 1],  # ZSO
+           [2, 1, 80],      # FGO-80
+           [2, 1, 90],      # FGO-90
+           [2, 1, 95],      # FGO-95
+           [2, 1, 100]]     # ZGO
+    """
+
     # Load shared selected classes.
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
 
     # Loop over all studies.
-    for s_id, study in enumerate(STUDIES):
+    for s_id, study in enumerate(studies):
         # Get study parameters.
         corr_factors = study[0]
         pred_factors = study[1]
@@ -245,7 +253,7 @@ def main():
         if True:
             print("Generate " + study_name)
         # Generate config folder if not already existing
-        study_folder = SHARED_STUDY_PATH + os.sep + study_name
+        study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
             os.makedirs(study_folder)
         # Generate factor pairings for correlated factors.
@@ -290,7 +298,3 @@ def main():
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
-
-
-if __name__ == '__main__':
-    main()

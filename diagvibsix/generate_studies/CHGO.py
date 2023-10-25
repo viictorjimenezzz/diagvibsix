@@ -23,20 +23,23 @@ import os
 import copy
 import numpy as np
 import random
+from typing import Str
 
 from diagvibsix.auxiliaries import save_experiment, load_yaml
 from diagvibsix.dataset.mode import Mode
-from diagvibsix.dataset.config import SHARED_STUDY_PATH, FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
+from diagvibsix.dataset.config import FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
+
+__all__ = ['generate_CHGO']
 
 # Get factors and number of factors.
-F = len(FACTOR_CLASSES)
+#F = len(FACTOR_CLASSES)
 
 """
     This script generates the study for compositional generalization in a hybrid setting.
 
     Here one factor class remains fully correlated the other two stay un-correlated.
 """
-STUDIES = [0]
+#STUDIES = [0]
 
 """
 
@@ -57,6 +60,8 @@ STUDIES = [0]
 
 
 def generate_dataset(corr_comb, selected_classes, random_seed):
+    F = len(FACTOR_CLASSES)
+
     # Fix random seed for re-producebility.
     np.random.seed(random_seed)
     random.seed(random_seed)
@@ -179,7 +184,14 @@ def generate_dataset(corr_comb, selected_classes, random_seed):
     return ds_spec
 
 
-def main():
+def generate_CHGO(study_path: Str):
+    """Generates configuration files for the CHGO study.
+
+    Args:
+        study_path (str): Path where the configuration files should be stored.
+    """
+    STUDIES = [0]
+
     # Load shared selected classes.
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
 
@@ -190,7 +202,7 @@ def main():
         if True:
             print("Generate " + study_name)
         # Generate config folder if not already existing
-        study_folder = SHARED_STUDY_PATH + os.sep + study_name
+        study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
             os.makedirs(study_folder)
         # Generate pairings of factor combinations.
@@ -221,7 +233,3 @@ def main():
                 dataset = generate_dataset(corr_comb, selected_classes[samp], random_seed=seed)
                 # Save experiment (train, val, test) to target folder.
                 save_experiment(dataset, sample_folder)
-
-
-if __name__ == '__main__':
-    main()

@@ -24,20 +24,23 @@ import itertools
 import copy
 import numpy as np
 import random
+from typing import List, Str, Int
 
 from diagvibsix.auxiliaries import save_experiment, load_yaml
 from diagvibsix.dataset.mode import Mode
-from diagvibsix.dataset.config import SHARED_STUDY_PATH, FACTOR_CLASSES, IMG_SIZE, FACTORS, EXPERIMENT_SAMPLES, \
+from diagvibsix.dataset.config import FACTOR_CLASSES, IMG_SIZE, FACTORS, EXPERIMENT_SAMPLES, \
     SELECTED_CLASSES_PATH, SELECTED_GENOPPS_PATH
 
+__all__ = ['generate_CGO']
+
 # Get factors and number of factors.
-F = len(FACTOR_CLASSES)
+#F = len(FACTOR_CLASSES)
 
 """
     This script generates the study for compositional generalization successively adding single new
     combinations of factor-classes to the fully correlated study.
 """
-STUDIES = [1, 2, 3]
+#STUDIES = [1, 2, 3]
 
 """
 
@@ -54,6 +57,8 @@ STUDIES = [1, 2, 3]
 
 
 def generate_dataset(study, corr_comb, pred_comb, selected_classes, genopps, random_seed):
+    F = len(FACTOR_CLASSES)
+
     # Fix random seed for re-producebility.
     np.random.seed(random_seed)
     random.seed(random_seed)
@@ -133,18 +138,26 @@ def generate_dataset(study, corr_comb, pred_comb, selected_classes, genopps, ran
     return ds_spec
 
 
-def main():
+def generate_CGO(study_path: Str, GO_opportunities: List[Int]):
+    """Generates configuration files for the CGO study.
+
+    Args:
+        study_path (str): Path where the configuration files should be stored.
+        GO_opportunities (List[Int]): Number of co-occurrent factors added to the ZGO setup to increase the GO of the model.
+        A different conguration setup will be created for each of the elements in the list.
+    """
+
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
     genopps = load_yaml(SELECTED_GENOPPS_PATH)
 
     # Loop over all studies.
-    for s_id, study in enumerate(STUDIES):
+    for s_id, study in enumerate(GO_opportunities):
         # Set study name.
         study_name = 'study_CGO-' + str(study)
         if True:
             print("Generating " + study_name)
         # Generate config folder if not already existing
-        study_folder = SHARED_STUDY_PATH + os.sep + study_name
+        study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
             os.makedirs(study_folder)
         # Generate pairings of factor combinations.
@@ -185,7 +198,3 @@ def main():
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
-
-
-if __name__ == '__main__':
-    main()
