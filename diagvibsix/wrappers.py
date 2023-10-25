@@ -24,7 +24,7 @@ import torch
 from torch.utils.data import Dataset as TorchDataset
 import numpy as np
 import os
-from typing import Optional, Float, Str, Int, Bool
+from typing import Optional
 
 from diagvibsix.auxiliaries import get_dataset_tags, load_yaml
 from diagvibsix.dataset.dataset import Dataset
@@ -58,14 +58,14 @@ class TorchDatasetWrapper(TorchDataset):
         std (Optional[Float], optional): Standard deviation value for the normalization. Defaults to None.
     """
     def __init__(self, 
-                 dataset_spec_path: Str, 
-                 mnist_preprocessed_path: Str,
-                 cache: Optional[Bool] = False,
-                 dataset_dir: Optional[Str] = None, 
-                 seed: Optional[Int] = 123, 
-                 normalization: Optional[Str] = 'z-score', 
-                 mean: Optional[Float] = None, 
-                 std: Optional[Float] = None):
+                 dataset_spec_path: str, 
+                 mnist_preprocessed_path: str,
+                 cache: Optional[bool] = False,
+                 dataset_dir: Optional[str] = None, 
+                 seed: Optional[int] = 123, 
+                 normalization: Optional[str] = 'z-score', 
+                 mean: Optional[float] = None, 
+                 std: Optional[float] = None):
         
         self.dataset_spec = load_yaml(dataset_spec_path)
         if dataset_dir == None:

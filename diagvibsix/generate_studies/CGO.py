@@ -24,7 +24,7 @@ import itertools
 import copy
 import numpy as np
 import random
-from typing import List, Str, Int
+from typing import List
 
 from diagvibsix.auxiliaries import save_experiment, load_yaml
 from diagvibsix.dataset.mode import Mode
@@ -138,7 +138,7 @@ def generate_dataset(study, corr_comb, pred_comb, selected_classes, genopps, ran
     return ds_spec
 
 
-def generate_CGO(study_path: Str, GO_opportunities: List[Int]):
+def generate_CGO(study_path: str, GO_opportunities: List[int]):
     """Generates configuration files for the CGO study.
 
     Args:

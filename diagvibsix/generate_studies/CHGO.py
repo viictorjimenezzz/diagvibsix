@@ -23,7 +23,6 @@ import os
 import copy
 import numpy as np
 import random
-from typing import Str
 
 from diagvibsix.auxiliaries import save_experiment, load_yaml
 from diagvibsix.dataset.mode import Mode
@@ -184,7 +183,7 @@ def generate_dataset(corr_comb, selected_classes, random_seed):
     return ds_spec
 
 
-def generate_CHGO(study_path: Str):
+def generate_CHGO(study_path: str):
     """Generates configuration files for the CHGO study.
 
     Args:

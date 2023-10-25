@@ -22,7 +22,6 @@
 import numpy as np
 from skimage.transform import rescale
 from tqdm import trange
-from typing import Str
 import os
 import requests
 
@@ -36,7 +35,7 @@ def get_bbox(im, idx=255):
     return bbox
 
 
-def process_mnist(mnist_loadpath: Str, procmnist_savepath: Str):
+def process_mnist(mnist_loadpath: str, procmnist_savepath: str):
     """This function rescales MNIST digits to a 40x40 canvas.
     """
     IMG_SIZE = 40
@@ -110,7 +109,7 @@ def process_mnist(mnist_loadpath: Str, procmnist_savepath: Str):
     return
 
 
-def get_processed_mnist(mnist_processed_dir: Str):
+def get_processed_mnist(mnist_processed_dir: str):
     """Returns processed MNIST dataset.
 
     Args:

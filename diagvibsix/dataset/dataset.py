@@ -1,7 +1,7 @@
 import os
 import copy
 import numpy as np
-from typing import Optional, Str, Int
+from typing import Optional
 
 from diagvibsix.auxiliaries import load_obj, save_obj
 from diagvibsix.dataset.paint_images import Painter
@@ -67,10 +67,10 @@ class Dataset(object):
 
     def __init__(self, 
                  dataset_spec, 
-                 mnist_preprocessed_path: Str,
-                 cache_path: Optional[Str] = None, 
-                 dataset_dir: Optional[Str] = None, 
-                 seed: Optional[Int] = 123):
+                 mnist_preprocessed_path: str,
+                 cache_path: Optional[str] = None, 
+                 dataset_dir: Optional[str] = None, 
+                 seed: Optional[int] = 123):
         self.questions_answers = None
         np.random.seed(seed)
 

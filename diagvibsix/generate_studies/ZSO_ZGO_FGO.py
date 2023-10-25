@@ -24,7 +24,7 @@ import itertools
 import copy
 import numpy as np
 import random
-from typing import List, Str, Int
+from typing import List
 
 from diagvibsix.auxiliaries import save_experiment, load_yaml
 from diagvibsix.dataset.mode import Mode
@@ -217,7 +217,7 @@ def generate_dataset(corr_comb, pred_comb, corr_weight, selected_classes, random
     return ds_spec
 
 
-def generate_ZSO_ZGO_FGO(study_path: Str, studies: List[List[Int]]):
+def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
     """Generates configuration files for the ZSO, ZGO and FGO studies.
 
     Args:
