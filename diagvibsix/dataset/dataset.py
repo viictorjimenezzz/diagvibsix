@@ -83,6 +83,7 @@ class Dataset(object):
             self.images = cache_data['images']
             self.image_specs = cache_data['image_specs']
             self.task_labels = cache_data['tasks_labels']
+            self.task_labels = cache_data['task_labels']
             self.permutation = cache_data['permutation']
             print('Loaded dataset from cache file {}'.format(cache_path))
         else:
