@@ -150,9 +150,9 @@ class Painter(object):
             scale = obj_spec['scale']
 
             this_obj = rescale(obj.transpose((1, 2, 0)), scale, anti_aliasing=True, preserve_range=True,
-                               multichannel=True).transpose(2, 0, 1).astype('uint16')
+                                 channel_axis=2).transpose(2, 0, 1).astype('uint16')
             this_alpha = rescale(alpha.transpose((1, 2, 0)), scale, anti_aliasing=True, preserve_range=True,
-                                 multichannel=True).transpose(2, 0, 1).astype('uint16')
+                                 channel_axis=2).transpose(2, 0, 1).astype('uint16')
 
             pos = pos_to_abs(obj_spec['position'], shape, this_obj.shape)
 
