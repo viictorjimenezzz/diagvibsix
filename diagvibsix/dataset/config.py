@@ -24,10 +24,8 @@ import os
 # Definition of shared paths.
 # =============================================================================
 # MNIST save / load file names for pre-processing.
-SHARED_LOADPATH_MNIST = './tmp/diagvibsix/mnist/mnist.npz'
-SHARED_SAVEPATH_MNIST = './tmp/diagvibsix/mnist/mnist_processed.npz'
-# Folder to store datasets for studies.
-SHARED_STUDY_PATH = './tmp/diagvibsix/studies_selected/'
+SHARED_LOADPATH_MNIST = './diagvibsix/dataset/mnist.npz'
+SHARED_SAVEPATH_MNIST = './diagvibsix/dataset/mnist_processed.npz'
 # Path to the local textures in the repository.
 TEXTURE_PATH = './diagvibsix/dataset/textures/'
 # Path to the selected factor classes
