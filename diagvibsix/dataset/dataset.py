@@ -60,11 +60,11 @@ def get_answer(semantic_image_spec, question):
 
 class Dataset(object):
     """Class to provide a structured definition of a dataset.
-    We use Modes to define a dataset. For
+    We use Modes to define a dataset.
 
     """
 
-    def __init__(self, dataset_spec, seed, cache_path=None):
+    def __init__(self, dataset_spec, cache_path, dataset_dir, seed):
         self.questions_answers = None
         np.random.seed(seed)
 
@@ -82,7 +82,6 @@ class Dataset(object):
             cache_data = load_obj(cache_path)
             self.images = cache_data['images']
             self.image_specs = cache_data['image_specs']
-            self.task_labels = cache_data['tasks_labels']
             self.task_labels = cache_data['task_labels']
             self.permutation = cache_data['permutation']
             print('Loaded dataset from cache file {}'.format(cache_path))
@@ -116,7 +115,7 @@ class Dataset(object):
 
                 # Save cache.
                 print('Saved dataset to cache file {}'.format(cache_path))
-                save_obj(cache_data, cache_path)
+                save_obj(cache_data, dataset_dir)
 
     def draw_mode(self, mode_spec, number_of_samples):
         """Draws the entire mode.

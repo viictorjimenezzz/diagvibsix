@@ -23,6 +23,8 @@ import re
 import torch
 from torch.utils.data import Dataset as TorchDataset
 import numpy as np
+import os
+from typing import Optional, Float, Str, Int, Bool
 
 from diagvibsix.auxiliaries import get_dataset_tags, load_yaml
 from diagvibsix.dataset.dataset import Dataset
@@ -40,10 +42,36 @@ def get_per_ch_mean_std(images):
 
 
 class TorchDatasetWrapper(TorchDataset):
-    def __init__(self, dataset_spec_path, seed, normalization='z-score', mean=None, std=None, cache=False):
+    """A PyTorch Dataset wrapper for the DiagViB-6 dataset.
+
+    Args:
+        dataset_spec_path (Str): Path to the dataset specification yaml file.
+        cache (Optional[Bool], optional): True if the dataset is to be stored for further use or if it has already been generated and only has to
+        be recovered. In the latter case, the path to the dataset must be specified in dataset_dir.
+        dataset_dir (Optional[Str], optional): Path to the directory where the dataset is or will be stored if cache=True. It defaults to the
+        directory of specified yaml file.
+        seed (Optional[Int], optional): Random seed for the dataset generation.
+        normalization (Optional[Str], optional): Normalization type. Defaults to 'z-score'.
+        mean (Optional[Float], optional): Mean value for the normalization. Defaults to None.
+        std (Optional[Float], optional): Standard deviation value for the normalization. Defaults to None.
+    """
+    def __init__(self, 
+                 dataset_spec_path: Str, 
+                 cache: Optional[Bool] = False,
+                 dataset_dir: Optional[Str] = None, 
+                 seed: Optional[Int] = 123, 
+                 normalization: Optional[Str] = 'z-score', 
+                 mean: Optional[Float] = None, 
+                 std: Optional[Float] = None):
+        
         self.dataset_spec = load_yaml(dataset_spec_path)
-        cache_file = '{}.pkl'.format(re.split('.yml|.yaml', dataset_spec_path)[0]) if cache else None
-        self.dataset = Dataset(self.dataset_spec, seed, cache_path=cache_file)
+        if dataset_dir == None:
+             self.dataset_dir = os.path.dirname(dataset_spec_path) + os.sep
+        else:
+             self.dataset_dir = dataset_dir
+
+        cache_filepath = os.path.join(self.dataset_dir, os.path.splitext(os.path.basename(dataset_spec_path))[0] + ".pkl") if cache else None
+        self.dataset = Dataset(self.dataset_spec, cache_filepath, self.dataset_dir, seed)
         self.normalization = normalization
 
         # Get tags, task and shape.
