@@ -190,7 +190,7 @@ class Dataset(object):
             obj['instance'] = np.random.randint(0, last_instance_idx)
             # Draw object color (hue + lightness).
             obj['color'] = sample_attribute('colorgrad',
-                                            hue_attr=obj_spec['hue'],
+                                            obj_spec['hue'],
                                             light_attr=obj_spec['lightness'])
             # Object position / scale.
             for attr in ['position', 'scale']:
