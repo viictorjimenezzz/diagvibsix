@@ -1,4 +1,4 @@
-cudatoolkit>=10.1
+#cudatoolkit>=10.1
 imageio>=2.8.0
 matplotlib>=3.3.0
 numpy>=1.19.0
