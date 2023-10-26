@@ -291,6 +291,8 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                     factor_combination_name += '-' + pred_comb[f]
                     pred.append(pred_comb[f])
 
+                print(corrs, pred)
+                print(corr_comb, pred_comb)
                 if name == 'FGO':
                     experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
                 else:
