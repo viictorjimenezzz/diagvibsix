@@ -151,11 +151,14 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
     genopps = load_yaml(SELECTED_GENOPPS_PATH)
 
     # Loop over all studies.
+    experiment_dict = {}
     for s_id, study in enumerate(GO_opportunities):
         # Set study name.
         study_name = 'study_CGO-' + str(study)
         if True:
             print("Generating " + study_name)
+        experiment_dict['CGO'][study] = {}
+
         # Generate config folder if not already existing
         study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
@@ -173,11 +176,17 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                     continue
                 # Generate factor naming, incl. corr and pred.
                 factor_combination_name = 'CORR'
+                corrs = []
                 for f in range(len(list(corr_comb))):
                     factor_combination_name += '-' + corr_comb[f]
+                    corrs.append(corr_comb[f])
                 factor_combination_name += '_PRED'
+                pred = []
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
+                    pred.append(pred_comb[f])
+                experiment_dict['CGO'][study][tuple(sorted(corrs))][pred] = {}
+
                 # Generate config folder if not already existing.
                 factor_combination_folder = study_folder + os.sep + factor_combination_name
                 if not os.path.exists(factor_combination_folder):
@@ -198,3 +207,7 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
+                    for t in ['train', 'val', 'test']:
+                        experiment_dict['CGO'][study][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+
+    return experiment_dict

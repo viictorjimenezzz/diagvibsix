@@ -195,11 +195,14 @@ def generate_CHGO(study_path: str):
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
 
     # Loop over all studies.
+    experiment_dict = {}
     for s_id, study in enumerate(STUDIES):
         # Set study name.
         study_name = 'study_CHGO'
         if True:
             print("Generate " + study_name)
+        experiment_dict['CHGO'] = {}
+
         # Generate config folder if not already existing
         study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
@@ -214,9 +217,13 @@ def generate_CHGO(study_path: str):
         for corr_comb in corr_factor_combinations:
             # Generate factor naming, incl. corr and pred.
             factor_combination_name = 'HCORR'
+            corrs = []
             for f in range(len(list(corr_comb))):
                 factor_combination_name += '-' + corr_comb[f]
+                corrs.append(corr_comb[f])
             factor_combination_name += '_PRED-' + corr_comb[0]
+            experiment_dict['CHGO'][tuple(sorted(corrs))][corr_comb[0]] = {}
+
             # Generate config folder if not already existing.
             factor_combination_folder = study_folder + os.sep + factor_combination_name
             if not os.path.exists(factor_combination_folder):
@@ -232,3 +239,7 @@ def generate_CHGO(study_path: str):
                 dataset = generate_dataset(corr_comb, selected_classes[samp], random_seed=seed)
                 # Save experiment (train, val, test) to target folder.
                 save_experiment(dataset, sample_folder)
+                for t in ['train', 'val', 'test']:
+                    experiment_dict['CHGO'][tuple(sorted(corrs))][corr_comb[0]][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+
+    return experiment_dict

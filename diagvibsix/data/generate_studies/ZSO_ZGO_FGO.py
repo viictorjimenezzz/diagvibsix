@@ -222,8 +222,7 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
 
     Args:
         study_path (str): Path where the configuration files should be stored.
-        studies (list): List of studies to be generated. Each study is defined by its two parameters: [correlated factors, predicted factors]
-        An optional third parameter in [0, 100] might be given to specify a correlation frequency. By default this is 100. 
+        studies (list): List of studies to be generated. Each study is defined by its two parameters: [correlated factors, predicted factors]. An optional third parameter in [0, 100] might be given to specify a correlation frequency. By default this is 100. 
         
         For example, for the biased experiment:
         studies = [[0, 1],  # ZSO
@@ -237,6 +236,7 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
 
     # Loop over all studies.
+    experiment_dict = {}
     for s_id, study in enumerate(studies):
         # Get study parameters.
         corr_factors = study[0]
@@ -246,12 +246,19 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
         # Set study name.
         if corr_factors == 0:
             study_name = 'study_ZSO'
+            name = 'ZSO'
+            experiment_dict[name] = {}
         elif corr_factors == 2 and corr_weight == 100:
             study_name = 'study_ZGO'
+            name = 'ZGO'
+            experiment_dict[name] = {}
         else:
             study_name = 'study_FGO-' + str(corr_weight)
+            name = 'FGO'
+            experiment_dict[name][corr_weight] = {}
         if True:
             print("Generate " + study_name)
+
         # Generate config folder if not already existing
         study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
@@ -274,11 +281,21 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                         continue
                 # Generate factor naming, incl. corr and pred.
                 factor_combination_name = 'CORR'
+                corrs = []
                 for f in range(len(list(corr_comb))):
                     factor_combination_name += '-' + corr_comb[f]
+                    corrs.append(corr_comb[f])
                 factor_combination_name += '_PRED'
+                pred = []
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
+                    pred.append(pred_comb[f])
+
+                if name == 'FGO':
+                    experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
+                else:
+                    experiment_dict[name][tuple(sorted(corrs))][pred] = {}
+
                 # Generate config folder if not already existing.
                 factor_combination_folder = study_folder + os.sep + factor_combination_name
                 if not os.path.exists(factor_combination_folder):
@@ -298,3 +315,11 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
+                    if name == 'FGO':
+                        for t in ['train', 'val', 'test']:
+                            experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                    else:
+                        for t in ['train', 'val', 'test']:
+                            experiment_dict[name][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+
+    return experiment_dict
