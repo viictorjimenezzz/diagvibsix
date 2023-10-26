@@ -20,15 +20,16 @@
 # -*- coding: utf-8 -*-
 
 import os
+from pkg_resources import resource_filename
 
 # Definition of shared paths.
 # =============================================================================
 # Path to the local textures in the repository.
-TEXTURE_PATH = './diagvibsix/dataset/textures/'
+TEXTURE_PATH = resource_filename('diagvibsix', 'data/dataset/textures/')
 # Path to the selected factor classes
-SELECTED_CLASSES_PATH = './diagvibsix/dataset/selected_classes.yml'
+SELECTED_CLASSES_PATH = resource_filename('diagvibsix', 'data/dataset/selected_classes.yml')
 # Path to selected generalization opportunities
-SELECTED_GENOPPS_PATH = './diagvibsix/dataset/selected_genops.yml'
+SELECTED_GENOPPS_PATH = resource_filename('diagvibsix', 'data/dataset/selected_genops.yml')
 
 # Used image size in px.
 IMG_SIZE = 128
