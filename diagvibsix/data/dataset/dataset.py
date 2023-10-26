@@ -32,13 +32,11 @@ from .config import DATASETS
 
 def random_choice(attr):
     """Returns a random choice of a list of attributes or the single attribute that was provided.
-
     Args:
         attr (list, str): Single attribute or list of attributes.
 
     Returns:
-        str: Single attribute.
-
+        str: Attribute selected.
     """
 
     if isinstance(attr, list):
@@ -48,8 +46,11 @@ def random_choice(attr):
 
 
 def get_answer(semantic_image_spec, question):
-    """ Returns the attribute for a certain attribute type of an object.
-    Attribute types are e.g. 'category', 'class', 'style'.
+    """ Returns the value selected for a certain factor.
+
+    Args:
+        semantic_image_spec (dict): The semantic image specification.
+        question (str): The question to be answered.
     """
     # We never have more than one object and questions can't be ambiguous (otherwise the image couldn't be generated in
     # the first place
@@ -99,7 +100,9 @@ class Dataset(object):
 
             # Loop over modes.
             for mode_cntr, mode in enumerate(self.spec['modes']):
-                mode['samples'] = int(mode['ratio'] * self.spec['samples'])
+                mode['samples'] = int(mode['ratio'] * self.spec['samples']) # get number of samples for this mode
+
+                # Generate image list for the mode.
                 image_specs, images, task_labels = self.draw_mode(mode['specification'], mode['samples'])
                 self.image_specs += image_specs
                 self.images += images
@@ -124,7 +127,13 @@ class Dataset(object):
 
     def draw_mode(self, mode_spec, number_of_samples):
         """Draws the entire mode.
+
+        Args:
+            mode_spec (dict): The specification dictionary of the mode. It contains the keys `objs` and `tag`.
+            number_of_samples (int): The number of samples to be drawn from the mode.
         """
+
+        # For each observation we store the image, the image specification dictionary, and the task label (i.e. factor to be predicted).
         image_specs = [None for _ in range(number_of_samples)]
         images = [None for _ in range(number_of_samples)]
         task_labels = [None for _ in range(number_of_samples)]
@@ -133,17 +142,22 @@ class Dataset(object):
         for sample_cntr in range(number_of_samples):
             image_spec, semantic_image_spec = self.draw_image_spec_from_mode(copy.deepcopy(mode_spec))
 
-            # Get answers to all questions
-            task_labels[sample_cntr] = get_answer(semantic_image_spec, self.task)
-
-            image_specs[sample_cntr] = image_spec
-            image = self.painter.paint_images(image_spec, self.spec['shape'])
-            images[sample_cntr] = image
+            task_labels[sample_cntr] = get_answer(semantic_image_spec, self.task) # store associated task
+            image_specs[sample_cntr] = image_spec # store generating specifications
+            image = self.painter.paint_images(image_spec, self.spec['shape']) # generate image from specifications
+            images[sample_cntr] = image # store image
 
         return image_specs, images, task_labels
 
     def draw_image_spec_from_mode(self, mode_spec):
         """ Draws a single image specification from a mode.
+            
+        Args:
+            mode_spec (dict): The specification dictionary of the mode. It contains the keys `objs` and `tag`.
+
+        Returns:
+            image_spec (dict): A dictionary with keys 'tag' and 'obj', the latter one containing a list of the mode_spec['objs'] with the numeric values for each factor according to the selected category for each.
+            semantic_image_spec (dict): Equivalent to image_spec, but with the names of the selected category for each factor.
         """
         # Set empty dictionary for each sample.
         image_spec = dict()
@@ -172,11 +186,11 @@ class Dataset(object):
             obj['texture'] = obj_spec['texture']
 
             # Draw class instance.
-            last_instance_idx = DATASETS[obj['category']]['samples'][obj['shape']]
+            last_instance_idx = DATASETS[obj['category']]['samples'][obj['shape']] 
             obj['instance'] = np.random.randint(0, last_instance_idx)
             # Draw object color (hue + lightness).
             obj['color'] = sample_attribute('colorgrad',
-                                            obj_spec['hue'],
+                                            hue_attr=obj_spec['hue'],
                                             light_attr=obj_spec['lightness'])
             # Object position / scale.
             for attr in ['position', 'scale']:

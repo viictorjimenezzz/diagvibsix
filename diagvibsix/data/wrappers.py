@@ -30,7 +30,7 @@ from .auxiliaries import get_dataset_tags, load_yaml
 from .dataset.dataset import Dataset
 from .dataset.dataset_utils import get_mt_labels
 
-__all__ = ['TorchDatasetWrapper']
+__all__ = ['TorchDatasetWrapper', 'get_per_ch_mean_std']
 
 
 def get_per_ch_mean_std(images):
