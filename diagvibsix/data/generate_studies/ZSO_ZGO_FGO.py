@@ -295,6 +295,8 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                 print(corr_comb, pred_comb)
                 if name == 'FGO':
                     experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
+                elif name == 'ZSO':
+                    experiment_dict[name][pred] = {}
                 else:
                     experiment_dict[name][tuple(sorted(corrs))][pred] = {}
 
@@ -320,6 +322,9 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                     if name == 'FGO':
                         for t in ['train', 'val', 'test']:
                             experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                    elif name == 'ZSO':
+                        for t in ['train', 'val', 'test']:
+                            experiment_dict[name][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
                     else:
                         for t in ['train', 'val', 'test']:
                             experiment_dict[name][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
