@@ -185,7 +185,7 @@ def generate_dataset(corr_comb, selected_classes, random_seed):
 
 def generate_CHGO(study_path: str):
     """Generates configuration files for the CHGO study.
-    The six available factors are: 'position', 'hue', 'lightness', 'scale', 'shape', and 'texture'.
+    The six available factors are: 'position', 'hue', 'lightness', 'scale', 'shape', and 'texture'. 
 
     Args:
         study_path (str): Path where the configuration files should be stored.
@@ -195,7 +195,7 @@ def generate_CHGO(study_path: str):
 
         experiment_dict['CHGO'][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
 
-        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness']. Note that for CHGO predicted_factors must contain only one element.
+        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness']. Note that for CHGO predicted_factors must contain only one element, and sample_number is in [0,4].
     """
     STUDIES = [0]
 
@@ -234,7 +234,7 @@ def generate_CHGO(study_path: str):
                 experiment_dict['CHGO'][tuple(sorted(corrs))][tuple(corr_comb[0])] = {}
             except KeyError:
                 experiment_dict['CHGO'][tuple(sorted(corrs))] = {}
-                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple(corr_comb[0])] = {}
+                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])] = {}
 
             # Generate config folder if not already existing.
             factor_combination_folder = study_folder + os.sep + factor_combination_name
@@ -251,8 +251,8 @@ def generate_CHGO(study_path: str):
                 dataset = generate_dataset(corr_comb, selected_classes[samp], random_seed=seed)
                 # Save experiment (train, val, test) to target folder.
                 save_experiment(dataset, sample_folder)
-                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple(corr_comb[0])][samp] = {}
+                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])][samp] = {}
                 for t in ['train', 'val', 'test']:
-                    experiment_dict['CHGO'][tuple(sorted(corrs))][tuple(corr_comb[0])][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                    experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 
     return experiment_dict

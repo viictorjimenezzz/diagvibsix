@@ -152,7 +152,7 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
 
         experiment_dict['CGO'][GO_opportunity][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
 
-        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness']. Note that for CHGO predicted_factors must contain only one element.
+        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness'], and sample_number is in [0,4].
     """
 
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)

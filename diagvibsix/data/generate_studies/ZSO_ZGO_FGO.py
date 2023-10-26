@@ -239,7 +239,7 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
         For ZGO: experiment_dict['ZGO'][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
         For FGO: experiment_dict['FGO'][correlation_frequency][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
 
-        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness'].
+        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness'], and sample_number is in [0,4]
     """
 
     # Load shared selected classes.
