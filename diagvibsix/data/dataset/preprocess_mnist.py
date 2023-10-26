@@ -136,6 +136,7 @@ def get_processed_mnist(mnist_processed_dir: str):
         process_mnist(mnist_loadpath, procmnist_savepath)
 
     # Delete mnist.npz:
-    os.remove(mnist_loadpath)
+    if os.path.isfile(mnist_loadpath):
+        os.remove(mnist_loadpath)
 
     return procmnist_savepath
