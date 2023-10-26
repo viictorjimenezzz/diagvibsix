@@ -320,12 +320,15 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
                     if name == 'FGO':
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred][samp] = {}
                         for t in ['train', 'val', 'test']:
                             experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
                     elif name == 'ZSO':
+                        experiment_dict[name][pred][samp] = {}
                         for t in ['train', 'val', 'test']:
                             experiment_dict[name][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
                     else:
+                        experiment_dict[name][tuple(sorted(corrs))][pred][samp] = {}
                         for t in ['train', 'val', 'test']:
                             experiment_dict[name][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 

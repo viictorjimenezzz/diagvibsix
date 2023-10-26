@@ -181,10 +181,9 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                     factor_combination_name += '-' + corr_comb[f]
                     corrs.append(corr_comb[f])
                 factor_combination_name += '_PRED'
-                pred = []
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
-                    pred.append(pred_comb[f])
+                    pred = pred_comb[f]
                 experiment_dict['CGO'][study][tuple(sorted(corrs))][pred] = {}
 
                 # Generate config folder if not already existing.
@@ -207,6 +206,7 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))][pred][samp] = {}
                     for t in ['train', 'val', 'test']:
                         experiment_dict['CGO'][study][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 

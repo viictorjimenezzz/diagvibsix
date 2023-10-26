@@ -239,6 +239,7 @@ def generate_CHGO(study_path: str):
                 dataset = generate_dataset(corr_comb, selected_classes[samp], random_seed=seed)
                 # Save experiment (train, val, test) to target folder.
                 save_experiment(dataset, sample_folder)
+                experiment_dict['CHGO'][tuple(sorted(corrs))][corr_comb[0]][samp] = {}
                 for t in ['train', 'val', 'test']:
                     experiment_dict['CHGO'][tuple(sorted(corrs))][corr_comb[0]][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 
