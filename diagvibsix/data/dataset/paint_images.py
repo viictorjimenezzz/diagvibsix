@@ -23,7 +23,7 @@ import numpy as np
 from imageio import imread
 from skimage.transform import rescale
 
-from diagvibsix.dataset.config import TEXTURES, DATASETS
+from data.dataset.config import TEXTURES, DATASETS
 
 THRESHOLD = 150
 

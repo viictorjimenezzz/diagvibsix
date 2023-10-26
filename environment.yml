@@ -1,4 +1,4 @@
-name: diagvib
+name: diagvibsix
 channels:
   - pytorch
   - defaults

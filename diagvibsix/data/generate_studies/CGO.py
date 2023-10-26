@@ -26,9 +26,9 @@ import numpy as np
 import random
 from typing import List
 
-from diagvibsix.auxiliaries import save_experiment, load_yaml
-from diagvibsix.dataset.mode import Mode
-from diagvibsix.dataset.config import FACTOR_CLASSES, IMG_SIZE, FACTORS, EXPERIMENT_SAMPLES, \
+from data.auxiliaries import save_experiment, load_yaml
+from data.dataset.mode import Mode
+from data.dataset.config import FACTOR_CLASSES, IMG_SIZE, FACTORS, EXPERIMENT_SAMPLES, \
     SELECTED_CLASSES_PATH, SELECTED_GENOPPS_PATH
 
 __all__ = ['generate_CGO']

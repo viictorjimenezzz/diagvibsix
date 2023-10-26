@@ -3,8 +3,8 @@ import copy
 import numpy as np
 from typing import Optional
 
-from diagvibsix.auxiliaries import load_obj, save_obj
-from diagvibsix.dataset.paint_images import Painter
+from data.auxiliaries import load_obj, save_obj
+from data.dataset.paint_images import Painter
 #!/usr/local/bin/python3
 # Copyright (c) 2021 Robert Bosch GmbH Copyright holder of the paper "DiagViB-6: A Diagnostic Benchmark Suite for Vision Models in the Presence of Shortcut and Generalization Opportunities" accepted at ICCV 2021.
 # All rights reserved.
@@ -26,8 +26,8 @@ from diagvibsix.dataset.paint_images import Painter
 # Author: Elias Eulig, Volker Fischer
 # -*- coding: utf-8 -*-
 
-from diagvibsix.dataset.dataset_utils import sample_attribute
-from diagvibsix.dataset.config import DATASETS
+from data.dataset.dataset_utils import sample_attribute
+from data.dataset.config import DATASETS
 
 
 def random_choice(attr):

@@ -22,7 +22,7 @@
 import numpy as np
 import colorsys
 
-from diagvibsix.dataset.config import *
+from data.dataset.config import *
 
 __all__ = ['sample_attribute',
            'get_mt_labels']

@@ -26,9 +26,9 @@ import numpy as np
 import random
 from typing import List
 
-from diagvibsix.auxiliaries import save_experiment, load_yaml
-from diagvibsix.dataset.mode import Mode
-from diagvibsix.dataset.config import FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
+from data.auxiliaries import save_experiment, load_yaml
+from data.dataset.mode import Mode
+from data.dataset.config import FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
 
 __all__ = ['generate_ZSO_ZGO_FGO']
 

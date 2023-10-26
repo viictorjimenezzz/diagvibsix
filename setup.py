@@ -22,7 +22,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='diagvib',
+    name='diagvibsix',
     version='0.0.3',
     url='https://arxiv.org/abs/2108.05779',
     description='DiagViB-6 benchmark suite to study a network’s shortcut vulnerability and generalization capability '

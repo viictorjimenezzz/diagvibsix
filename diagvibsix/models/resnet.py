@@ -25,7 +25,7 @@ import torch
 import torch.nn as nn
 
 import torchvision.models as models
-from diagvibsix.dataset.config import OBJECT_ATTRIBUTES
+from data.dataset.config import OBJECT_ATTRIBUTES
 
 
 class ResNet(nn.Module):

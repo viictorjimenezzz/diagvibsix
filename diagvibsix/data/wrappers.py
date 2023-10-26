@@ -26,9 +26,9 @@ import numpy as np
 import os
 from typing import Optional
 
-from diagvibsix.auxiliaries import get_dataset_tags, load_yaml
-from diagvibsix.dataset.dataset import Dataset
-from diagvibsix.dataset.dataset_utils import get_mt_labels
+from data.auxiliaries import get_dataset_tags, load_yaml
+from data.dataset.dataset import Dataset
+from data.dataset.dataset_utils import get_mt_labels
 
 __all__ = ['TorchDatasetWrapper']
 
