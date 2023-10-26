@@ -255,7 +255,11 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
         else:
             study_name = 'study_FGO-' + str(corr_weight)
             name = 'FGO'
-            experiment_dict[name][corr_weight] = {}
+            try:
+                experiment_dict[name][corr_weight] = {}
+            except KeyError: # when its the first FGO study
+                experiment_dict[name] = {}
+                experiment_dict[name][corr_weight] = {}
         if True:
             print("Generate " + study_name)
 
