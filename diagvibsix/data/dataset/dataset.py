@@ -68,8 +68,7 @@ class Dataset(object):
     def __init__(self, 
                  dataset_spec, 
                  mnist_preprocessed_path: str,
-                 cache_path: Optional[str] = None, 
-                 dataset_dir: Optional[str] = None, 
+                 cache_path: Optional[str] = None,
                  seed: Optional[int] = 123):
         self.questions_answers = None
         np.random.seed(seed)
@@ -121,7 +120,7 @@ class Dataset(object):
 
                 # Save cache.
                 print('Saved dataset to cache file {}'.format(cache_path))
-                save_obj(cache_data, dataset_dir)
+                save_obj(cache_data, cache_path)
 
     def draw_mode(self, mode_spec, number_of_samples):
         """Draws the entire mode.

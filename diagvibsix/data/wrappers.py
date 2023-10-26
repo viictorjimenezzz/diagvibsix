@@ -49,8 +49,8 @@ class TorchDatasetWrapper(TorchDataset):
         mnist_preprocessed_path (Str): Path to the processed MNIST dataset. If there is no such dataset, you can generate it by 
         calling process_mnist.get_processed_mnist(mnist_dir).
         cache (Optional[Bool], optional): True if the dataset is to be stored for further use or if it has already been generated and only has to
-        be recovered. In the latter case, the path to the dataset must be specified in dataset_dir.
-        dataset_dir (Optional[Str], optional): Path to the directory where the dataset is or will be stored if cache=True. It defaults to the
+        be recovered. In the latter case, the path to the dataset must be specified in cache_store_dir.
+        cache_store_dir (Optional[Str], optional): Path to the directory where the dataset is or will be stored if cache=True. It defaults to the
         directory of specified yaml file.
         seed (Optional[Int], optional): Random seed for the dataset generation.
         normalization (Optional[Str], optional): Normalization type. Defaults to 'z-score'.
@@ -61,20 +61,20 @@ class TorchDatasetWrapper(TorchDataset):
                  dataset_spec_path: str, 
                  mnist_preprocessed_path: str,
                  cache: Optional[bool] = False,
-                 dataset_dir: Optional[str] = None, 
+                 cache_store_dir: Optional[str] = None, 
                  seed: Optional[int] = 123, 
                  normalization: Optional[str] = 'z-score', 
                  mean: Optional[float] = None, 
                  std: Optional[float] = None):
         
         self.dataset_spec = load_yaml(dataset_spec_path)
-        if dataset_dir == None:
-             self.dataset_dir = os.path.dirname(dataset_spec_path) + os.sep
+        if cache_store_dir == None:
+             self.cache_store_dir = os.path.dirname(dataset_spec_path) + os.sep
         else:
-             self.dataset_dir = dataset_dir
+             self.cache_store_dir = cache_store_dir
 
-        cache_filepath = os.path.join(self.dataset_dir, os.path.splitext(os.path.basename(dataset_spec_path))[0] + ".pkl") if cache else None
-        self.dataset = Dataset(self.dataset_spec, mnist_preprocessed_path, cache_filepath, self.dataset_dir, seed)
+        cache_path = os.path.join(self.cache_store_dir, os.path.splitext(os.path.basename(dataset_spec_path))[0] + ".pkl") if cache else None
+        self.dataset = Dataset(self.dataset_spec, mnist_preprocessed_path, cache_path, seed)
         self.normalization = normalization
 
         # Get tags, task and shape.
