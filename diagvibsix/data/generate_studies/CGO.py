@@ -223,8 +223,8 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
-                    experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(corrs))][samp] = {}
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(preds))][samp] = {}
                     for t in ['train', 'val', 'test']:
-                        experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(corrs))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                        experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(preds))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 
     return experiment_dict
