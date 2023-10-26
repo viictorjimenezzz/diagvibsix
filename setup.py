@@ -35,7 +35,8 @@ setup(
     package_data={
         'diagvibsix': [
             'data/dataset/*.yml',
-            'trainer/*.yml'
+            'trainer/*.yml',
+            'data/dataset/textures/*.png'
             ]
     }
 )
