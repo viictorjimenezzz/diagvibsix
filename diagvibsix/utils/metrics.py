@@ -27,7 +27,7 @@ import torch
 
 import matplotlib
 import matplotlib.pyplot as plt
-from data.dataset.config import OBJECT_ATTRIBUTES
+from ..data.dataset.config import OBJECT_ATTRIBUTES
 
 matplotlib.use('Agg')
 

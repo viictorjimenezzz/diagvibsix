@@ -22,7 +22,7 @@
 import numpy as np
 import colorsys
 
-from data.dataset.config import *
+from .config import *
 
 __all__ = ['sample_attribute',
            'get_mt_labels']

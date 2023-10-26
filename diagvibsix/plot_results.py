@@ -22,8 +22,8 @@
 import os
 import numpy as np
 import argparse
-from data.auxiliaries import load_obj, load_yaml, get_corr_pred
-from data.dataset.config import EXPERIMENT_SAMPLES, FACTORS
+from .data.auxiliaries import load_obj, load_yaml, get_corr_pred
+from .data.dataset.config import EXPERIMENT_SAMPLES, FACTORS
 import matplotlib.pyplot as plt
 
 

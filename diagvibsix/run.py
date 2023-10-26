@@ -22,8 +22,8 @@
 import numpy as np
 import torch
 import sys
-from argparser import make_parser
-import trainer
+from .argparser import make_parser
+import diagvibsix.trainer as trainer
 import random
 
 

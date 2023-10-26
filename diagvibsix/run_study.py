@@ -22,8 +22,8 @@
 import argparse
 import os
 
-from data.auxiliaries import load_yaml
-from data.dataset.config import EXPERIMENT_SAMPLES, SHARED_STUDY_PATH
+from .data.auxiliaries import load_yaml
+from .data.dataset.config import EXPERIMENT_SAMPLES, SHARED_STUDY_PATH
 
 
 def load_hyperparameters(savepath):
