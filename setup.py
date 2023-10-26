@@ -27,8 +27,6 @@ setup(
     url='https://arxiv.org/abs/2108.05779',
     description='DiagViB-6 benchmark suite to study a network’s shortcut vulnerability and generalization capability '
                 'for six independent FoV',
-    #packages=find_packages(),
-    packages=['diagvib', 'diagvib.diagvibsix', 'diagvib.diagvibsix.dataset', 'diagvib.diagvibsix.generate_studies',
-              'diagvib.models', 'diagvib.trainer', 'diagvib.utils'],
+    packages=find_packages(),
     install_requires=[],
 )
