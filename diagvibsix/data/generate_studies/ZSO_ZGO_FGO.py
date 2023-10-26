@@ -219,6 +219,7 @@ def generate_dataset(corr_comb, pred_comb, corr_weight, selected_classes, random
 
 def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
     """Generates configuration files for the ZSO, ZGO and FGO studies.
+    The six available factors are: 'position', 'hue', 'lightness', 'scale', 'shape', and 'texture'.
 
     Args:
         study_path (str): Path where the configuration files should be stored.
@@ -230,6 +231,15 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
            [2, 1, 90],      # FGO-90
            [2, 1, 95],      # FGO-95
            [2, 1, 100]]     # ZGO
+
+    Returns:
+        experiment_dict (dict): Dictionary containing the paths to the generated configuration files. The dictionary is structured as follows:
+
+        For ZSO: experiment_dict['ZSO'][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+        For ZGO: experiment_dict['ZGO'][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+        For FGO: experiment_dict['FGO'][correlation_frequency][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+
+        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness'].
     """
 
     # Load shared selected classes.
@@ -290,29 +300,27 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                     factor_combination_name += '-' + corr_comb[f]
                     corrs.append(corr_comb[f])
                 factor_combination_name += '_PRED'
+                preds = []
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
-                    pred = pred_comb[f]
+                    preds.append(pred_comb[f])
 
-                print(name)
-                print(corrs, pred)
-                print(corr_comb, pred_comb)
                 if name == 'FGO':
                     try:
-                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
                     except KeyError:
                         experiment_dict[name][corr_weight][tuple(sorted(corrs))] = {}
-                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
 
                 elif name == 'ZSO':
-                    experiment_dict[name][pred] = {}
+                    experiment_dict[name][tuple(sorted(preds))] = {}
 
                 else:
                     try:
-                        experiment_dict[name][tuple(sorted(corrs))][pred] = {}
+                        experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
                     except KeyError:
                         experiment_dict[name][tuple(sorted(corrs))] = {}
-                        experiment_dict[name][tuple(sorted(corrs))][pred] = {}
+                        experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
 
                 # Generate config folder if not already existing.
                 factor_combination_folder = study_folder + os.sep + factor_combination_name
@@ -334,16 +342,16 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
                     if name == 'FGO':
-                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred][samp] = {}
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))][samp] = {}
                         for t in ['train', 'val', 'test']:
-                            experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                            experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
                     elif name == 'ZSO':
-                        experiment_dict[name][pred][samp] = {}
+                        experiment_dict[name][tuple(sorted(preds))][samp] = {}
                         for t in ['train', 'val', 'test']:
-                            experiment_dict[name][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                            experiment_dict[name][tuple(sorted(preds))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
                     else:
-                        experiment_dict[name][tuple(sorted(corrs))][pred][samp] = {}
+                        experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))][samp] = {}
                         for t in ['train', 'val', 'test']:
-                            experiment_dict[name][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                            experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 
     return experiment_dict

@@ -140,11 +140,19 @@ def generate_dataset(study, corr_comb, pred_comb, selected_classes, genopps, ran
 
 def generate_CGO(study_path: str, GO_opportunities: List[int]):
     """Generates configuration files for the CGO study.
+    The six available factors are: 'position', 'hue', 'lightness', 'scale', 'shape', and 'texture'.
 
     Args:
         study_path (str): Path where the configuration files should be stored.
         GO_opportunities (List[Int]): Number of co-occurrent factors added to the ZGO setup to increase the GO of the model.
         A different conguration setup will be created for each of the elements in the list.
+
+    Returns: 
+        experiment_dict (dict): Dictionary containing the paths to the generated configuration files. The dictionary is structured as follows:
+
+        experiment_dict['CGO'][GO_opportunity][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+
+        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness']. Note that for CHGO predicted_factors must contain only one element.
     """
 
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
@@ -185,14 +193,15 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                     factor_combination_name += '-' + corr_comb[f]
                     corrs.append(corr_comb[f])
                 factor_combination_name += '_PRED'
+                preds = []
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
-                    pred = pred_comb[f]
+                    preds.append(pred_comb[f])
                 try:
-                    experiment_dict['CGO'][study][tuple(sorted(corrs))][pred] = {}
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
                 except KeyError:
                     experiment_dict['CGO'][study][tuple(sorted(corrs))] = {}
-                    experiment_dict['CGO'][study][tuple(sorted(corrs))][pred] = {}
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
 
                 # Generate config folder if not already existing.
                 factor_combination_folder = study_folder + os.sep + factor_combination_name
@@ -214,8 +223,8 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
-                    experiment_dict['CGO'][study][tuple(sorted(corrs))][pred][samp] = {}
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(corrs))][samp] = {}
                     for t in ['train', 'val', 'test']:
-                        experiment_dict['CGO'][study][tuple(sorted(corrs))][pred][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                        experiment_dict['CGO'][study][tuple(sorted(corrs))][tuple(sorted(corrs))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 
     return experiment_dict
