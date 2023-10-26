@@ -157,7 +157,11 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
         study_name = 'study_CGO-' + str(study)
         if True:
             print("Generating " + study_name)
-        experiment_dict['CGO'][study] = {}
+        try:
+            experiment_dict['CGO'][study] = {}
+        except KeyError:
+            experiment_dict['CGO'] = {}
+            experiment_dict['CGO'][study] = {}
 
         # Generate config folder if not already existing
         study_folder = study_path + os.sep + study_name
