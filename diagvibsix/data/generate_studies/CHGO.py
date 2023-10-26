@@ -222,7 +222,11 @@ def generate_CHGO(study_path: str):
                 factor_combination_name += '-' + corr_comb[f]
                 corrs.append(corr_comb[f])
             factor_combination_name += '_PRED-' + corr_comb[0]
-            experiment_dict['CHGO'][tuple(sorted(corrs))][corr_comb[0]] = {}
+            try:
+                experiment_dict['CHGO'][tuple(sorted(corrs))][corr_comb[0]] = {}
+            except KeyError:
+                experiment_dict['CHGO'][tuple(sorted(corrs))] = {}
+                experiment_dict['CHGO'][tuple(sorted(corrs))][corr_comb[0]] = {}
 
             # Generate config folder if not already existing.
             factor_combination_folder = study_folder + os.sep + factor_combination_name

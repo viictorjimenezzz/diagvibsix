@@ -184,7 +184,11 @@ def generate_CGO(study_path: str, GO_opportunities: List[int]):
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
                     pred = pred_comb[f]
-                experiment_dict['CGO'][study][tuple(sorted(corrs))][pred] = {}
+                try:
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))][pred] = {}
+                except KeyError:
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))] = {}
+                    experiment_dict['CGO'][study][tuple(sorted(corrs))][pred] = {}
 
                 # Generate config folder if not already existing.
                 factor_combination_folder = study_folder + os.sep + factor_combination_name

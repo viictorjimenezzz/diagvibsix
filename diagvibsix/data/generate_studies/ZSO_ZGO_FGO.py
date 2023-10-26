@@ -298,11 +298,21 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                 print(corrs, pred)
                 print(corr_comb, pred_comb)
                 if name == 'FGO':
-                    experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
+                    try:
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
+                    except KeyError:
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))] = {}
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][pred] = {}
+
                 elif name == 'ZSO':
                     experiment_dict[name][pred] = {}
+
                 else:
-                    experiment_dict[name][tuple(sorted(corrs))][pred] = {}
+                    try:
+                        experiment_dict[name][tuple(sorted(corrs))][pred] = {}
+                    except KeyError:
+                        experiment_dict[name][tuple(sorted(corrs))] = {}
+                        experiment_dict[name][tuple(sorted(corrs))][pred] = {}
 
                 # Generate config folder if not already existing.
                 factor_combination_folder = study_folder + os.sep + factor_combination_name
