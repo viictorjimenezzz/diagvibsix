@@ -286,10 +286,9 @@ def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
                     factor_combination_name += '-' + corr_comb[f]
                     corrs.append(corr_comb[f])
                 factor_combination_name += '_PRED'
-                pred = []
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
-                    pred.append(pred_comb[f])
+                    pred = pred_comb[f]
 
                 print(name)
                 print(corrs, pred)
