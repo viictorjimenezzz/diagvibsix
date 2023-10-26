@@ -231,7 +231,7 @@ def generate_CHGO(study_path: str):
                 corrs.append(corr_comb[f])
             factor_combination_name += '_PRED-' + corr_comb[0]
             try:
-                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple(corr_comb[0])] = {}
+                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])] = {}
             except KeyError:
                 experiment_dict['CHGO'][tuple(sorted(corrs))] = {}
                 experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])] = {}
