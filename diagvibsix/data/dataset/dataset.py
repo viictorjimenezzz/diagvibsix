@@ -56,8 +56,6 @@ def get_answer(semantic_image_spec, question):
     # the first place
     if question == 'category':
         return semantic_image_spec['objs'][0][question].split()[0]
-    elif question == 'tag': # Added for PA
-        return semantic_image_spec['tag']
     else:
         return semantic_image_spec['objs'][0][question]
 
