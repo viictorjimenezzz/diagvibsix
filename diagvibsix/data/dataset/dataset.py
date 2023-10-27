@@ -29,6 +29,7 @@ from .paint_images import Painter
 from .dataset_utils import sample_attribute
 from .config import DATASETS
 
+__all__ = ['Dataset','DatasetCSV']
 
 def random_choice(attr):
     """Returns a random choice of a list of attributes or the single attribute that was provided.
@@ -207,3 +208,75 @@ class Dataset(object):
         return {'image': self.images[permuted_idx],
                 'targets': (self.task, self.task_labels[permuted_idx]),
                 'tag': self.image_specs[permuted_idx]['tag']}
+
+
+from pandas import read_csv
+import os
+from typing import Optional
+
+from numpy.random import seed as set_seed
+
+from diagvibsix.data.dataset.dataset import Dataset
+from diagvibsix.data.dataset.paint_images import Painter
+from diagvibsix.data.dataset.config import OBJECT_ATTRIBUTES
+
+"""
+The following subclass was not included in the original DiagVib6 dataset.
+"""
+class DatasetCSV(Dataset):
+    """Subclass of DiagVib dataset to generate images from customized CSV specifications.
+    
+    Args:
+        mnist_preprocessed_path (str): Path to the processed MNIST dataset. If there is no such dataset, you can generate it by calling process_mnist.get_processed_mnist(mnist_dir).
+        csv_path (str): Path to the CSV file containing the dataset specifications.
+        t (Optional[str]): Type of dataset to be generated, corresponding to the key 'category' (e.g. 'train').
+        seed (Optional[int]): Random seed for the dataset generation.
+
+    The CSV file must contain, in order:
+        - `task_label`: A column for the target associated with the task.
+        - A column for each of the OBJECT_ATTRIBUTES.
+        - `permutation`: A column for the permutation value.
+        - `environment`: A column for the environment, in case samples want to be distinguished that way
+    
+    """
+
+    def __init__(self,
+                mnist_preprocessed_path: str,
+                csv_path: str,
+                t: str = 'train',
+                seed: Optional[int] = 123):
+        
+        set_seed(seed) # numpy bc thats how files are generated
+        
+        self.painter = Painter(mnist_preprocessed_path)
+        self.metadata = read_csv(csv_path)
+        self.permutation = self.metadata.permutation.to_list()
+        self.targets = self.metadata.task_label.to_list()
+        self.envs = self.metadata.environment.to_list()
+
+        self.len_factors = len(OBJECT_ATTRIBUTES.keys())
+
+        # Needed to avoid overriding methods
+        self.spec = {} 
+        self.task = 'shape' # THIS IS FIXED FOR NOW, BUT COULD BE GENERALIZED EASILY
+        self.spec['shape'] = [1, 128, 128] # MNIST expected shape  MAYBE I HAVE TO CHANGE IT
+
+        # Generating the images
+        self.images = []
+        for index, row in self.metadata.iterrows():
+            obj_spec = {col: OBJECT_ATTRIBUTES[col][val] for col, val in row.iloc[1:self.len_factors+1].items()}
+            obj_spec['category'] = t
+
+            mode_spec = {}
+            mode_spec['tag'] = row[-1] # the environment
+            mode_spec['objs'] = [obj_spec]
+            image_specs, images, env_label = self.draw_mode(mode_spec, 1) # 1 image per mode
+            self.images += images
+
+    def getitem(self, idx):
+        idx = self.permutation[idx]
+        return {
+            'image': self.images[idx],
+            'target': self.targets[idx],
+            'env': self.envs[idx] # replaces the tag
+        }
