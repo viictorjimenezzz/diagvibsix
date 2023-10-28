@@ -236,8 +236,6 @@ class DatasetCSV(Dataset):
         - `task_label`: A column for the target associated with the task.
         - A column for each of the OBJECT_ATTRIBUTES.
         - `permutation`: A column for the permutation value.
-        - `environment`: A column for the environment, in case samples want to be distinguished that way
-    
     """
 
     def __init__(self,
@@ -252,7 +250,6 @@ class DatasetCSV(Dataset):
         self.metadata = read_csv(csv_path)
         self.permutation = self.metadata.permutation.to_list()
         self.targets = self.metadata.task_label.to_list()
-        self.envs = self.metadata.environment.to_list()
 
         self.len_factors = len(OBJECT_ATTRIBUTES.keys())
 
@@ -267,9 +264,10 @@ class DatasetCSV(Dataset):
             obj_spec = {col: OBJECT_ATTRIBUTES[col][val] for col, val in row.iloc[1:self.len_factors+1].items()}
             obj_spec['category'] = t
 
-            mode_spec = {}
-            mode_spec['tag'] = row[-1] # the environment
-            mode_spec['objs'] = [obj_spec]
+            mode_spec = {
+                'tag': '',
+                'objs': [obj_spec]
+            }
             image_specs, images, env_label = self.draw_mode(mode_spec, 1) # 1 image per mode
             self.images += images
 
@@ -278,5 +276,5 @@ class DatasetCSV(Dataset):
         return {
             'image': self.images[idx],
             'target': self.targets[idx],
-            'env': self.envs[idx] # replaces the tag
+            'tag': ''
         }
