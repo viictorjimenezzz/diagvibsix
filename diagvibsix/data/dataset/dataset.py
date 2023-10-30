@@ -249,7 +249,7 @@ class DatasetCSV(Dataset):
         self.painter = Painter(mnist_preprocessed_path)
         self.metadata = read_csv(csv_path)
         self.permutation = self.metadata.permutation.to_list()
-        self.targets = self.metadata.task_label.to_list()
+        self.task_labels = self.metadata.task_label.to_list()
 
         self.len_factors = len(OBJECT_ATTRIBUTES.keys())
 
@@ -275,6 +275,6 @@ class DatasetCSV(Dataset):
         idx = self.permutation[idx]
         return {
             'image': self.images[idx],
-            'target': self.targets[idx],
+            'target': (self.task, self.task_labels[idx]),
             'tag': ''
         }
