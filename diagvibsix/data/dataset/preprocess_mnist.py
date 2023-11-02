@@ -109,34 +109,48 @@ def process_mnist(mnist_loadpath: str, procmnist_savepath: str):
     return
 
 
+import time
+import tempfile
+import shutil
+
 def get_processed_mnist(mnist_processed_dir: str):
     """Returns processed MNIST dataset.
-
+    
     Args:
-        mnist_processed_path (Str): Directory where to store the processed MNIST dataset.
-
+        mnist_processed_dir (str): Directory where to store the processed MNIST dataset.
+    
     Returns:
-        Str: Path to the processed MNIST dataset.
+        str: Path to the processed MNIST dataset.
     """
+    # Ensure directory exists
+    os.makedirs(mnist_processed_dir, exist_ok=True)
 
-    # Check whether mnist.npz exists:
-    mnist_loadpath = mnist_processed_dir + 'mnist.npz'
-    if not os.path.isfile(mnist_loadpath):
+    # Use a temporary file for downloading to prevent conflicts
+    with tempfile.NamedTemporaryFile(dir=mnist_processed_dir, delete=False) as tmp_file:
         mnist_keras = "https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz"
         response = requests.get(mnist_keras, stream=True)
         response.raise_for_status()
+        for chunk in response.iter_content(chunk_size=8192):
+            tmp_file.write(chunk)
+        tmp_filepath = tmp_file.name  # Store the temporary file name
 
-        with open(mnist_loadpath, 'wb') as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                file.write(chunk)
+    # Atomic move to the final destination to prevent partial file reads
+    mnist_loadpath = os.path.join(mnist_processed_dir, 'mnist.npz')
+    shutil.move(tmp_filepath, mnist_loadpath)
 
-    # Check whether preprocessed_mnist.npz exists:
-    procmnist_savepath = mnist_processed_dir + 'mnist_processed.npz'
+    # Check whether preprocessed_mnist.npz exists
+    procmnist_savepath = os.path.join(mnist_processed_dir, 'mnist_processed.npz')
     if not os.path.isfile(procmnist_savepath):
         process_mnist(mnist_loadpath, procmnist_savepath)
 
-    # Delete mnist.npz:
-    if os.path.isfile(mnist_loadpath):
-        os.remove(mnist_loadpath)
-
+    # Attempt to delete the original MNIST file with retries in case of failure
+    for attempt in range(3):
+        try:
+            if os.path.isfile(mnist_loadpath):
+                os.remove(mnist_loadpath)
+            break  # If remove succeeded, break out of the loop
+        except OSError as e:
+            if e.errno != os.errno.ENOENT:  # No such file or directory
+                time.sleep(0.5)  # Wait a bit before retrying
+            
     return procmnist_savepath
