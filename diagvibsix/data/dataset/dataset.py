@@ -1,7 +1,7 @@
 import os
 import copy
 import numpy as np
-from typing import Optional
+from typing import Optional, List
 
 from ..auxiliaries import load_obj, save_obj
 from .paint_images import Painter
@@ -70,6 +70,7 @@ class Dataset(object):
     def __init__(self, 
                  dataset_spec, 
                  mnist_preprocessed_path: str,
+                 split_numsplit = List[int, int],
                  cache_path: Optional[str] = None,
                  seed: Optional[int] = 123):
         self.questions_answers = None
@@ -84,8 +85,12 @@ class Dataset(object):
         # Setup painter.
         self.painter = Painter(mnist_preprocessed_path)
 
+        # FOR POSTERIOR AGREEMENT:
         # Initialize an iterable for each class. For each new sample, the same number will be selected.
         self.iterables_test = [iter(range(i)) for i in DATASETS['test']['samples']]
+        # Define the splits for training and validation
+        self.current_split = split_numsplit[0]
+        self.total_splits = split_numsplit[1]
 
         if (cache_path is not None) and (os.path.exists(cache_path)):
             # load cache
@@ -190,11 +195,16 @@ class Dataset(object):
             obj['texture'] = obj_spec['texture']
 
             # Draw class instance.
-            if obj['category'] == 'test':
+            #last_instance_idx = DATASETS[obj['category']]['samples'][obj['shape']] 
+            #obj['instance'] = np.random.randint(0, last_instance_idx)
+            
+            # DRAW INSTANCE FOR POSTERIOR AGREEMENT EXPERIMENTS
+            if obj['category'] == 'test': # test datasets are correspondent
                 obj['instance'] = self.iterables_test[obj['shape']].__next__()
-            else:
+            else: # train and val datasets are not correspondent but disjoint between environments
                 last_instance_idx = DATASETS[obj['category']]['samples'][obj['shape']] 
-                obj['instance'] = np.random.randint(0, last_instance_idx)
+                numels_split = last_instance_idx // self.total_splits
+                obj['instance'] = np.random.randint(self.current_split*numels_split, (self.current_split+1)*numels_split)
 
             # Draw object color (hue + lightness).
             obj['color'] = sample_attribute('colorgrad',
@@ -248,6 +258,7 @@ class DatasetCSV(Dataset):
     def __init__(self,
                 mnist_preprocessed_path: str,
                 csv_path: str,
+                split_numsplit = List[int, int],
                 t: str = 'train',
                 seed: Optional[int] = 123):
         
@@ -265,8 +276,12 @@ class DatasetCSV(Dataset):
         self.task = 'shape' # THIS IS FIXED FOR NOW, BUT COULD BE GENERALIZED EASILY
         self.spec['shape'] = [1, 128, 128] # MNIST expected shape  MAYBE I HAVE TO CHANGE IT
 
+        # FOR POSTERIOR AGREEMENT:
         # Initialize an iterable for each class. For each new sample, the same number will be selected.
         self.iterables_test = [iter(range(i)) for i in DATASETS['test']['samples']]
+        # Define the splits for training and validation
+        self.current_split = split_numsplit[0]
+        self.total_splits = split_numsplit[1]
 
         # Generating the images
         self.images = []
