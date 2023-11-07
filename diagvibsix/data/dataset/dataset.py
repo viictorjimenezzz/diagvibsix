@@ -270,6 +270,11 @@ class DatasetCSV(Dataset):
         self.task = 'shape' # THIS IS FIXED FOR NOW, BUT COULD BE GENERALIZED EASILY
         self.spec['shape'] = [1, 128, 128] # MNIST expected shape  MAYBE I HAVE TO CHANGE IT
 
+        # Initialize an iterable for each class. For each new sample, the same number will be selected.
+        self.iterables_train = [iter(range(i)) for i in DATASETS['train']['samples']]
+        self.iterables_val = [iter(range(i)) for i in DATASETS['val']['samples']]
+        self.iterables_test = [iter(range(i)) for i in DATASETS['test']['samples']]
+
         # Generating the images
         self.images = []
         for index, row in self.metadata.iterrows():
