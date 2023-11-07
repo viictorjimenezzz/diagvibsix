@@ -84,6 +84,11 @@ class Dataset(object):
         # Setup painter.
         self.painter = Painter(mnist_preprocessed_path)
 
+        # Initialize an iterable for each class. For each new sample, the same number will be selected.
+        self.iterables_train = [iter(range(i)) for i in DATASETS['train']['samples']]
+        self.iterables_val = [iter(range(i)) for i in DATASETS['val']['samples']]
+        self.iterables_test = [iter(range(i)) for i in DATASETS['test']['samples']]
+
         if (cache_path is not None) and (os.path.exists(cache_path)):
             # load cache
             cache_data = load_obj(cache_path)
@@ -187,8 +192,15 @@ class Dataset(object):
             obj['texture'] = obj_spec['texture']
 
             # Draw class instance.
-            last_instance_idx = DATASETS[obj['category']]['samples'][obj['shape']] 
-            obj['instance'] = np.random.randint(0, last_instance_idx)
+            #last_instance_idx = DATASETS[obj['category']]['samples'][obj['shape']] 
+            #obj['instance'] = np.random.randint(0, last_instance_idx)
+            if obj['category'] == 'train':
+                obj['instance'] = self.iterables_train[obj['shape']].__next__()
+            elif obj['category'] == 'val':
+                obj['instance'] = self.iterables_val[obj['shape']].__next__()
+            else: # test
+                obj['instance'] = self.iterables_test[obj['shape']].__next__()
+
             # Draw object color (hue + lightness).
             obj['color'] = sample_attribute('colorgrad',
                                             obj_spec['hue'],
