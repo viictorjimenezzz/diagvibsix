@@ -70,7 +70,7 @@ class Dataset(object):
     def __init__(self, 
                  dataset_spec, 
                  mnist_preprocessed_path: str,
-                 split_numsplit = List[int, int],
+                 split_numsplit: List[int, int] = [0,1],
                  cache_path: Optional[str] = None,
                  seed: Optional[int] = 123):
         self.questions_answers = None
@@ -258,7 +258,7 @@ class DatasetCSV(Dataset):
     def __init__(self,
                 mnist_preprocessed_path: str,
                 csv_path: str,
-                split_numsplit = List[int, int],
+                split_numsplit: List[int, int] = [0, 1],
                 t: str = 'train',
                 seed: Optional[int] = 123):
         
