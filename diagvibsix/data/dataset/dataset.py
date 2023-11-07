@@ -250,7 +250,7 @@ class DatasetCSV(Dataset):
         seed (Optional[int]): Random seed for the dataset generation.
 
     The CSV file must contain, in order:
-        - `task_label`: A column for the target associated with the task.
+        - `task_labels`: A column for the target associated with the task.
         - A column for each of the OBJECT_ATTRIBUTES.
         - `permutation`: A column for the permutation value.
     """
@@ -267,7 +267,7 @@ class DatasetCSV(Dataset):
         self.painter = Painter(mnist_preprocessed_path)
         self.metadata = read_csv(csv_path)
         self.permutation = self.metadata.permutation.to_list()
-        self.task_labels = self.metadata.task_label.to_list()
+        self.task_labels = self.metadata.task_labels.to_list()
 
         self.len_factors = len(OBJECT_ATTRIBUTES.keys())
 
