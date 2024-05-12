@@ -203,7 +203,7 @@ class Dataset(object):
 
         return image_spec, mode_spec
 
-    def getitem(self, idx):
+    def __getitem__(self, idx):
         permuted_idx = self.permutation[idx]
 
         return {'image': self.images[permuted_idx],
