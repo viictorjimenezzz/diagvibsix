@@ -272,7 +272,7 @@ class DatasetCSV(Dataset):
             image_specs, images, env_label = self.draw_mode(mode_spec, 1) # 1 image per mode
             self.images += images
 
-    def getitem(self, idx):
+    def __getitem__(self, idx):
         idx = self.permutation[idx]
         return {
             'image': self.images[idx],
