@@ -39,6 +39,7 @@ EXPERIMENT_SAMPLES = 5
 # =============================================================================
 # Define texture factor-classes.
 TEXTURES = {
+    'blank': os.path.join(TEXTURE_PATH, 'blank.png'),
     'tiles': os.path.join(TEXTURE_PATH, 'tiles.png'),
     'wood': os.path.join(TEXTURE_PATH, 'wood.png'),
     'carpet': os.path.join(TEXTURE_PATH, 'carpet.png'),
