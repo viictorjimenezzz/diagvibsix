@@ -31,9 +31,9 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from tqdm import tqdm, trange
 
-from diagvibsix import TorchDatasetWrapper
-from diagvibsix.auxiliaries import save_obj, save_yaml
-from utils.metrics import Losses, Metrics
+from ..data.wrappers import TorchDatasetWrapper
+from ..data.auxiliaries import save_obj, save_yaml
+from ..utils.metrics import Losses, Metrics
 
 __all__ = [
     'setup_optimizer',

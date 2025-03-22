@@ -24,19 +24,21 @@ import copy
 import numpy as np
 import random
 
-from diagvibsix.auxiliaries import save_experiment, load_yaml
-from diagvibsix.dataset.mode import Mode
-from diagvibsix.dataset.config import SHARED_STUDY_PATH, FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
+from ..auxiliaries import save_experiment, load_yaml
+from ..dataset.mode import Mode
+from ..dataset.config import FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
+
+__all__ = ['generate_CHGO']
 
 # Get factors and number of factors.
-F = len(FACTOR_CLASSES)
+#F = len(FACTOR_CLASSES)
 
 """
     This script generates the study for compositional generalization in a hybrid setting.
 
     Here one factor class remains fully correlated the other two stay un-correlated.
 """
-STUDIES = [0]
+#STUDIES = [0]
 
 """
 
@@ -57,6 +59,8 @@ STUDIES = [0]
 
 
 def generate_dataset(corr_comb, selected_classes, random_seed):
+    F = len(FACTOR_CLASSES)
+
     # Fix random seed for re-producebility.
     np.random.seed(random_seed)
     random.seed(random_seed)
@@ -179,18 +183,36 @@ def generate_dataset(corr_comb, selected_classes, random_seed):
     return ds_spec
 
 
-def main():
+def generate_CHGO(study_path: str):
+    """Generates configuration files for the CHGO study.
+    The six available factors are: 'position', 'hue', 'lightness', 'scale', 'shape', and 'texture'. 
+
+    Args:
+        study_path (str): Path where the configuration files should be stored.
+
+    Returns:
+        experiment_dict (dict): Dictionary containing the paths to the generated configuration files. The dictionary is structured as follows:
+
+        experiment_dict['CHGO'][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+
+        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness']. Note that for CHGO predicted_factors must contain only one element, and sample_number is in [0,4].
+    """
+    STUDIES = [0]
+
     # Load shared selected classes.
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
 
     # Loop over all studies.
+    experiment_dict = {}
     for s_id, study in enumerate(STUDIES):
         # Set study name.
         study_name = 'study_CHGO'
         if True:
             print("Generate " + study_name)
+        experiment_dict['CHGO'] = {}
+
         # Generate config folder if not already existing
-        study_folder = SHARED_STUDY_PATH + os.sep + study_name
+        study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
             os.makedirs(study_folder)
         # Generate pairings of factor combinations.
@@ -203,9 +225,17 @@ def main():
         for corr_comb in corr_factor_combinations:
             # Generate factor naming, incl. corr and pred.
             factor_combination_name = 'HCORR'
+            corrs = []
             for f in range(len(list(corr_comb))):
                 factor_combination_name += '-' + corr_comb[f]
+                corrs.append(corr_comb[f])
             factor_combination_name += '_PRED-' + corr_comb[0]
+            try:
+                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])] = {}
+            except KeyError:
+                experiment_dict['CHGO'][tuple(sorted(corrs))] = {}
+                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])] = {}
+
             # Generate config folder if not already existing.
             factor_combination_folder = study_folder + os.sep + factor_combination_name
             if not os.path.exists(factor_combination_folder):
@@ -221,7 +251,8 @@ def main():
                 dataset = generate_dataset(corr_comb, selected_classes[samp], random_seed=seed)
                 # Save experiment (train, val, test) to target folder.
                 save_experiment(dataset, sample_folder)
+                experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])][samp] = {}
+                for t in ['train', 'val', 'test']:
+                    experiment_dict['CHGO'][tuple(sorted(corrs))][tuple([corr_comb[0]])][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 
-
-if __name__ == '__main__':
-    main()
+    return experiment_dict

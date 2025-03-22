@@ -21,12 +21,22 @@
 
 from setuptools import setup, find_packages
 
+with open("requirements.txt", "r") as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='diagvibsix',
-    version='0.0.1',
+    version='0.0.4',
     url='https://arxiv.org/abs/2108.05779',
     description='DiagViB-6 benchmark suite to study a network’s shortcut vulnerability and generalization capability '
                 'for six independent FoV',
     packages=find_packages(),
-    install_requires=[],
+    install_requires=requirements,
+    package_data={
+        'diagvibsix': [
+            'data/dataset/*.yml',
+            'trainer/*.yml',
+            'data/dataset/textures/*.png'
+            ]
+    }
 )

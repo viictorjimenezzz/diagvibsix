@@ -22,7 +22,7 @@ import random
 # Author: Elias Eulig, Volker Fischer
 # -*- coding: utf-8 -*-
 
-from diagvibsix.dataset.config import *
+from .config import *
 
 
 class Mode(dict):

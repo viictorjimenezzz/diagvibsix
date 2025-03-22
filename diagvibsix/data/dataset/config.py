@@ -20,20 +20,16 @@
 # -*- coding: utf-8 -*-
 
 import os
+from pkg_resources import resource_filename
 
 # Definition of shared paths.
 # =============================================================================
-# MNIST save / load file names for pre-processing.
-SHARED_LOADPATH_MNIST = './tmp/diagvibsix/mnist/mnist.npz'
-SHARED_SAVEPATH_MNIST = './tmp/diagvibsix/mnist/mnist_processed.npz'
-# Folder to store datasets for studies.
-SHARED_STUDY_PATH = './tmp/diagvibsix/studies_selected/'
 # Path to the local textures in the repository.
-TEXTURE_PATH = './diagvibsix/dataset/textures/'
+TEXTURE_PATH = resource_filename('diagvibsix', 'data/dataset/textures/')
 # Path to the selected factor classes
-SELECTED_CLASSES_PATH = './diagvibsix/dataset/selected_classes.yml'
+SELECTED_CLASSES_PATH = resource_filename('diagvibsix', 'data/dataset/selected_classes.yml')
 # Path to selected generalization opportunities
-SELECTED_GENOPPS_PATH = './diagvibsix/dataset/selected_genops.yml'
+SELECTED_GENOPPS_PATH = resource_filename('diagvibsix', 'data/dataset/selected_genops.yml')
 
 # Used image size in px.
 IMG_SIZE = 128
@@ -43,6 +39,7 @@ EXPERIMENT_SAMPLES = 5
 # =============================================================================
 # Define texture factor-classes.
 TEXTURES = {
+    'blank': os.path.join(TEXTURE_PATH, 'blank.png'),
     'tiles': os.path.join(TEXTURE_PATH, 'tiles.png'),
     'wood': os.path.join(TEXTURE_PATH, 'wood.png'),
     'carpet': os.path.join(TEXTURE_PATH, 'carpet.png'),
@@ -113,19 +110,16 @@ DATASETS = {
     'train': {
         'classes': [str(i) for i in range(10)],
         'samples': [4738, 5393, 4766, 4904, 4673, 4336, 4734, 5012, 4680, 4759],
-        'savepath': SHARED_SAVEPATH_MNIST,
         'size': 40
     },
     'val': {
         'classes': [str(i) for i in range(10)],
         'samples': [1185, 1349, 1192, 1227, 1169, 1085, 1184, 1253, 1171, 1190],
-        'savepath': SHARED_SAVEPATH_MNIST,
         'size': 40
     },
     'test': {
         'classes': [str(i) for i in range(10)],
         'samples': [980, 1135, 1032, 1010, 982, 892, 958, 1028, 974, 1009],
-        'savepath': SHARED_SAVEPATH_MNIST,
         'size': 40
     },
 }

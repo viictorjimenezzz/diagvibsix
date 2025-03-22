@@ -24,23 +24,14 @@ import itertools
 import copy
 import numpy as np
 import random
+from typing import List
 
-from diagvibsix.auxiliaries import save_experiment, load_yaml
-from diagvibsix.dataset.mode import Mode
-from diagvibsix.dataset.config import SHARED_STUDY_PATH, FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
+from ..auxiliaries import save_experiment, load_yaml
+from ..dataset.mode import Mode
+from ..dataset.config import FACTORS, FACTOR_CLASSES, IMG_SIZE, EXPERIMENT_SAMPLES, SELECTED_CLASSES_PATH
 
-# Get factors and number of factors.
-F = len(FACTOR_CLASSES)
+__all__ = ['generate_ZSO_ZGO_FGO']
 
-# Define list of all studies.
-# Each study is defined by its two parameters: [correlated factors, predicted factors]
-# An optional third parameter in [0, 100] might be given to specify a correlation frequency. By default this is 100.
-# Study for the biased experiment.
-STUDIES = [[0, 1],          # ZSO
-           [2, 1, 80],      # FGO-80
-           [2, 1, 90],      # FGO-90
-           [2, 1, 95],      # FGO-95
-           [2, 1, 100]]     # ZGO
 """
     The general folder for a dataset specification is :
         SHARED_DATASET_PATH / study name / factor combination, corr weight / sample id / train,val,test.yml
@@ -61,6 +52,8 @@ STUDIES = [[0, 1],          # ZSO
 
 
 def generate_dataset(corr_comb, pred_comb, corr_weight, selected_classes, random_seed):
+    F = len(FACTOR_CLASSES)
+    
     # Fix random seed for re-producebility.
     np.random.seed(random_seed)
     random.seed(random_seed)
@@ -224,12 +217,37 @@ def generate_dataset(corr_comb, pred_comb, corr_weight, selected_classes, random
     return ds_spec
 
 
-def main():
+def generate_ZSO_ZGO_FGO(study_path: str, studies: List[List[int]]):
+    """Generates configuration files for the ZSO, ZGO and FGO studies.
+    The six available factors are: 'position', 'hue', 'lightness', 'scale', 'shape', and 'texture'.
+
+    Args:
+        study_path (str): Path where the configuration files should be stored.
+        studies (list): List of studies to be generated. Each study is defined by its two parameters: [correlated factors, predicted factors]. An optional third parameter in [0, 100] might be given to specify a correlation frequency. By default this is 100. 
+        
+        For example, for the biased experiment:
+        studies = [[0, 1],  # ZSO
+           [2, 1, 80],      # FGO-80
+           [2, 1, 90],      # FGO-90
+           [2, 1, 95],      # FGO-95
+           [2, 1, 100]]     # ZGO
+
+    Returns:
+        experiment_dict (dict): Dictionary containing the paths to the generated configuration files. The dictionary is structured as follows:
+
+        For ZSO: experiment_dict['ZSO'][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+        For ZGO: experiment_dict['ZGO'][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+        For FGO: experiment_dict['FGO'][correlation_frequency][tuple(sorted(correlated_factors))][tuple(sorted(predicted_factors))][sample_number]['train', 'val' or 'test']
+
+        where predicted_factors and correlated_factors are lists of strings, e.g. ['hue', 'lightness'], and sample_number is in [0,4]
+    """
+
     # Load shared selected classes.
     selected_classes = load_yaml(SELECTED_CLASSES_PATH)
 
     # Loop over all studies.
-    for s_id, study in enumerate(STUDIES):
+    experiment_dict = {}
+    for s_id, study in enumerate(studies):
         # Get study parameters.
         corr_factors = study[0]
         pred_factors = study[1]
@@ -238,14 +256,25 @@ def main():
         # Set study name.
         if corr_factors == 0:
             study_name = 'study_ZSO'
+            name = 'ZSO'
+            experiment_dict[name] = {}
         elif corr_factors == 2 and corr_weight == 100:
             study_name = 'study_ZGO'
+            name = 'ZGO'
+            experiment_dict[name] = {}
         else:
             study_name = 'study_FGO-' + str(corr_weight)
+            name = 'FGO'
+            try:
+                experiment_dict[name][corr_weight] = {}
+            except KeyError: # when its the first FGO study
+                experiment_dict[name] = {}
+                experiment_dict[name][corr_weight] = {}
         if True:
             print("Generate " + study_name)
+
         # Generate config folder if not already existing
-        study_folder = SHARED_STUDY_PATH + os.sep + study_name
+        study_folder = study_path + os.sep + study_name
         if not os.path.exists(study_folder):
             os.makedirs(study_folder)
         # Generate factor pairings for correlated factors.
@@ -266,11 +295,33 @@ def main():
                         continue
                 # Generate factor naming, incl. corr and pred.
                 factor_combination_name = 'CORR'
+                corrs = []
                 for f in range(len(list(corr_comb))):
                     factor_combination_name += '-' + corr_comb[f]
+                    corrs.append(corr_comb[f])
                 factor_combination_name += '_PRED'
+                preds = []
                 for f in range(len(list(pred_comb))):
                     factor_combination_name += '-' + pred_comb[f]
+                    preds.append(pred_comb[f])
+
+                if name == 'FGO':
+                    try:
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
+                    except KeyError:
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))] = {}
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
+
+                elif name == 'ZSO':
+                    experiment_dict[name][tuple(sorted(preds))] = {}
+
+                else:
+                    try:
+                        experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
+                    except KeyError:
+                        experiment_dict[name][tuple(sorted(corrs))] = {}
+                        experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))] = {}
+
                 # Generate config folder if not already existing.
                 factor_combination_folder = study_folder + os.sep + factor_combination_name
                 if not os.path.exists(factor_combination_folder):
@@ -290,7 +341,17 @@ def main():
                                                random_seed=seed)
                     # Save experiment (train, val, test) to target folder.
                     save_experiment(dataset, sample_folder)
+                    if name == 'FGO':
+                        experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))][samp] = {}
+                        for t in ['train', 'val', 'test']:
+                            experiment_dict[name][corr_weight][tuple(sorted(corrs))][tuple(sorted(preds))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                    elif name == 'ZSO':
+                        experiment_dict[name][tuple(sorted(preds))][samp] = {}
+                        for t in ['train', 'val', 'test']:
+                            experiment_dict[name][tuple(sorted(preds))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
+                    else:
+                        experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))][samp] = {}
+                        for t in ['train', 'val', 'test']:
+                            experiment_dict[name][tuple(sorted(corrs))][tuple(sorted(preds))][samp][t] = os.path.join(sample_folder, str(t) + '.yml')
 
-
-if __name__ == '__main__':
-    main()
+    return experiment_dict

@@ -20,7 +20,7 @@
 # -*- coding: utf-8 -*-
 
 from models import ResNet
-from trainer.base_trainer import BaseTrainer, setup_optimizer
+from .base_trainer import BaseTrainer, setup_optimizer
 
 __all__ = ['ResNet18Trainer']
 

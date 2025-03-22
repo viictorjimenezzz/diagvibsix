@@ -23,12 +23,14 @@ import re
 import torch
 from torch.utils.data import Dataset as TorchDataset
 import numpy as np
+import os
+from typing import Optional
 
-from diagvibsix.auxiliaries import get_dataset_tags, load_yaml
-from diagvibsix.dataset.dataset import Dataset
-from diagvibsix.dataset.dataset_utils import get_mt_labels
+from .auxiliaries import get_dataset_tags, load_yaml
+from .dataset.dataset import Dataset
+from .dataset.dataset_utils import get_mt_labels
 
-__all__ = ['TorchDatasetWrapper']
+__all__ = ['TorchDatasetWrapper', 'get_per_ch_mean_std']
 
 
 def get_per_ch_mean_std(images):
@@ -40,10 +42,39 @@ def get_per_ch_mean_std(images):
 
 
 class TorchDatasetWrapper(TorchDataset):
-    def __init__(self, dataset_spec_path, seed, normalization='z-score', mean=None, std=None, cache=False):
+    """A PyTorch Dataset wrapper for the DiagViB-6 dataset.
+
+    Args:
+        dataset_spec_path (Str): Path to the dataset specification yaml file.
+        mnist_preprocessed_path (Str): Path to the processed MNIST dataset. If there is no such dataset, you can generate it by 
+        calling process_mnist.get_processed_mnist(mnist_dir).
+        cache (Optional[Bool], optional): True if the dataset is to be stored for further use or if it has already been generated and only has to
+        be recovered. In the latter case, the path to the dataset must be specified in cache_store_dir.
+        cache_store_dir (Optional[Str], optional): Path to the directory where the dataset is or will be stored if cache=True. It defaults to the
+        directory of specified yaml file.
+        seed (Optional[Int], optional): Random seed for the dataset generation.
+        normalization (Optional[Str], optional): Normalization type. Defaults to 'z-score'.
+        mean (Optional[Float], optional): Mean value for the normalization. Defaults to None.
+        std (Optional[Float], optional): Standard deviation value for the normalization. Defaults to None.
+    """
+    def __init__(self, 
+                 dataset_spec_path: str, 
+                 mnist_preprocessed_path: str,
+                 cache: Optional[bool] = False,
+                 cache_store_dir: Optional[str] = None, 
+                 seed: Optional[int] = 123, 
+                 normalization: Optional[str] = 'z-score', 
+                 mean: Optional[float] = None, 
+                 std: Optional[float] = None):
+        
         self.dataset_spec = load_yaml(dataset_spec_path)
-        cache_file = '{}.pkl'.format(re.split('.yml|.yaml', dataset_spec_path)[0]) if cache else None
-        self.dataset = Dataset(self.dataset_spec, seed, cache_path=cache_file)
+        if cache_store_dir == None:
+             self.cache_store_dir = os.path.dirname(dataset_spec_path) + os.sep
+        else:
+             self.cache_store_dir = cache_store_dir
+
+        cache_path = os.path.join(self.cache_store_dir, os.path.splitext(os.path.basename(dataset_spec_path))[0] + ".pkl") if cache else None
+        self.dataset = Dataset(self.dataset_spec, mnist_preprocessed_path, cache_path, seed)
         self.normalization = normalization
 
         # Get tags, task and shape.
