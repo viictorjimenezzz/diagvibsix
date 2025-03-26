@@ -120,6 +120,7 @@ def get_processed_mnist(mnist_processed_dir: str):
     """
 
     # Check whether mnist.npz exists:
+    os.makedirs(mnist_processed_dir, exist_ok=True)
     mnist_loadpath = mnist_processed_dir + 'mnist.npz'
     procmnist_savepath = mnist_processed_dir + 'mnist_processed.npz'
     if not os.path.isfile(procmnist_savepath):
@@ -127,6 +128,7 @@ def get_processed_mnist(mnist_processed_dir: str):
             mnist_keras = "https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz"
             response = requests.get(mnist_keras, stream=True)
             response.raise_for_status()
+            
 
             with open(mnist_loadpath, 'wb') as file:
                 for chunk in response.iter_content(chunk_size=8192):
